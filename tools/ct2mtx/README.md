@@ -6,7 +6,7 @@ Converts a Novation Circuit Tracks pack (`.circuittrackspack`, from Novation Com
 ```
 ./build.sh --host                                   # once: the host simulator writes the projects
 python3 tools/ct2mtx/ct2mtx.py MyPack.circuittrackspack
-python3 tools/ct2mtx/ct2mtx.py MyPack.circuittrackspack --projects 1,5,9 --max-len 2.0 --wav
+python3 tools/ct2mtx/ct2mtx.py MyPack.circuittrackspack --projects 1,5,9 --max-len 2.0 --fill --wav
 ```
 
 Output: `MyPack.mtx` (the three project slots and the sample bank), `MyPack.txt` (the report: every sample kept,
@@ -20,7 +20,9 @@ replaced or left out, every patch and what was approximated), and with `--wav` a
 | MIDI 1, MIDI 2 | tracks 3-4, a plain knit sound picked by register (they played other instruments on the Circuit) |
 | Drum 1-4 | tracks 5-8: sample kits. Key 1 is the track's sample, keys 2-11 the other samples its steps pick (sample flips). One choke group, so a hit cuts the one before |
 | samples | only the samples the converted projects play. 22050 Hz, 4-bit ADPCM: 214 KB, about 19 s in all, at most 32 samples. `--max-len` (default 1.5 s) leaves longer ones out |
-| a sample left out | replaced by a synthesised alternate of the same kind (kick, snare, clap, hat, open hat, tom, rim, cowbell, shaker, cymbal) guessed from its name (`pool.py`), unless `--no-alt` |
+| a sample heard only in part | cut where it is never heard past (a drum track's next hit cuts it): no loss, more room |
+| `--fill` | after the short samples, longer ones too while the bank has room, most played first |
+| a sample left out | replaced by a synthesised alternate of the same kind (kick, snare, clap, hat, open hat, tom, rim, cowbell, shaker, cymbal) guessed from its name (`pool.py`), unless `--no-alt`. Loops, vocals, arps and the like are never given one: their hits are silent |
 | patterns (32 steps, 6 notes) | MiniTraxFM patterns (64 steps, 4 notes: of a bigger chord the lowest and highest are kept, then the loudest). Gate, micro-step delay, velocity and probability carry over. A drum roll becomes the multiply trick |
 | a chain | one pattern when its patterns fit 64 steps; a longer one is laid out in 4-bar blocks |
 | scenes and the scene chain | scenes (up to 32) and the song (up to 64 parts). PLAY plays the song from any page; every part starts all tracks from step 1, as a Circuit scene does |
@@ -36,6 +38,10 @@ python3 tools/ct2mtx/verify.py MyPack.circuittrackspack --song --bars 32
 It converts the pack with every chance step made certain, plays each project in the host simulator, and compares
 every note each track sends over MIDI with what the Circuit project holds: the same pitch, within 12 ms. A clean run
 ends with `verify: every note matched`. Roll hits are counted but not timed.
+
+Tested on nine real packs (Blue Monday, I Feel Love, Prodigy, Out Of Space, Voodoo, Apricots, Golden): every note
+matches over 32 bars of each song, except where a drum hit falls a sixth of a step before the same track's next
+hit (one hit a step: the early one plays up to 1/3 step early; the report counts these as "hits early").
 
 ## Not converted (yet)
 
