@@ -10,11 +10,15 @@ MiniTraxFM plays Novation Circuit Tracks packs on the M-VAVE FM-1. It is a fork 
 A converted pack's song plays from PLAY, and each part starts every track from step 1, as a Circuit scene does.
 LOOM-8's factory sounds and breaks are not used: the sample bank holds only the pack's samples.
 
+**The site**: <https://guinanno1.github.io/fm1-minitrax/>: try it in the browser (load a converted pack), install
+the latest test build, the [quick start](docs/QUICKSTART.md) and the [user guide](docs/MANUAL.md). Every push to
+`main` rebuilds the firmware, the emulator and the site (`.github/workflows/pages.yml`, `tools/make_pages.py`).
+
 **Converting a pack**: `tools/ct2mtx/` turns a `.circuittrackspack` into a MiniTraxFM backup with up to three
 projects and the samples they play. See [tools/ct2mtx/README.md](tools/ct2mtx/README.md).
 
-Status: early. It builds and runs in fm1-base's host simulator, where converted songs play note for note
-(`tools/ct2mtx/verify.py`). It has not yet been built for or run on an FM-1. The package identity `FM-1_13` is a
+Status: early, in testing. It builds for the FM-1 on GitHub (the shared FM-1 builder), and in fm1-base's host
+simulator converted songs play note for note (`tools/ct2mtx/verify.py`). The package identity `FM-1_13` is a
 placeholder until one is agreed with the other firmwares. Some of LOOM-8's test scenarios still assume its own
 layout (a kit on track 1) and fail; they are next to be rewritten.
 
