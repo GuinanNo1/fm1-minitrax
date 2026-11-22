@@ -110,6 +110,13 @@ int app_host_fails(void);
 #define APP_HOST_MS                     /* the voices' and the estimated load's peaks (host.c "stats") */
 void app_host_ms(void);
 #define APP_HOST_CPU2                   /* the second core simulated in host.c (its work counted apart) */
+/* The browser emulator has no environment: the host's LOOM_* switches are read as unset there (a WASI build's
+ * getenv would stop the program, Emscripten's answers nothing) */
+#ifdef PLAT_WEB
+#include <stdlib.h>
+#define getenv(n) ((char *)0)
+#endif
+
 #endif
 
 /* LOOM-8's own platform extras, beyond fm1-base's plat.h (its second core too: fm1.toml cpu2 = true): on the FM-1 in

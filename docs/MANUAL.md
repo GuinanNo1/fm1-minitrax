@@ -1,20 +1,21 @@
-# LOOM-8 manual
+# MiniTraxFM user guide
 
-LOOM-8 turns your M-VAVE FM-1 into a pocket groovebox: eight threads of sound on a 64-step loom.
+MiniTraxFM plays Novation Circuit Tracks packs on the M-VAVE FM-1. It has the Circuit Tracks' layout: four
+polyphonic synth tracks and four sample drum tracks, eight patterns a track, scenes and a song. Convert a pack on
+your computer, load it onto the FM-1, press **PLAY**, and the projects play as they did on the Circuit.
 
-Each track can play one of seven synths, a sample, a chopped-up break, a drum kit, or another synth over MIDI.
-Write patterns of up to 64 steps, then give any step a trick, or lock a knob to its own value there. Use the
-conductor to lead the band through a chord progression, and hold a key to throw in a momentary effect while it
-plays. Weave two patterns into a third: bar by bar, step by step, or with one's rhythm and the other's notes. Mix
-it all with two send effects (the reverb's modes include the PlayStation's own reverbs) and a master section, and
-arrange it into a song of up to thirty-two scenes.
+MiniTraxFM is a fork of [LOOM-8](https://github.com/charlesvestal/fm1-loom) by Charles Vestal. Most of what you do
+on it (the steps, the sounds, the mixer, saving) works as it does on LOOM-8, and the second half of this guide is
+LOOM-8's own reference, edited for MiniTraxFM.
 
-LOOM-8 is made for one way of working. Write a short pattern, add a few tricks and weave it with another. Let the
-conductor play a progression, and season it with throws while it plays. Then put your scenes in order.
-
-To see it played first, watch the [LOOM-8 video](https://www.youtube.com/watch?v=d84QXnfulRE).
+**Status: test builds.** MiniTraxFM is early. The site's installer and emulator always carry the latest build.
+[Report what you find]({REPO}/issues).
 
 - [Quick start](#quick-start)
+- [From Circuit Tracks to MiniTraxFM](#from-circuit-tracks-to-minitraxfm)
+- [Getting a pack on](#getting-a-pack-on)
+- [Playing a converted song](#playing-a-converted-song)
+- [The tracks](#the-tracks)
 - [Cheat sheet](#cheat-sheet)
 - [Getting around](#getting-around)
 - [Steps](#steps)
@@ -31,67 +32,84 @@ To see it played first, watch the [LOOM-8 video](https://www.youtube.com/watch?v
 
 ## Quick start
 
-This quick start takes you from a blank project to a jam in ten minutes. Count the white keys 1 to 16 from the left, and the black
-keys 1 to 11.
+The [quick start](https://guinanno1.github.io/fm1-minitrax/quickstart/) takes you from a Circuit Tracks pack to a song playing on the FM-1, or in
+the [emulator](https://guinanno1.github.io/fm1-minitrax/emu/) if you have no FM-1 at hand.
 
-1. **A beat.** Turn **ALGORITHM** until the tag line says T1 kit, and press **SEQ**. Press black key 1 for the
-   kick, then press white keys 1, 5, 9 and 13. Press black key 2 for the snare, then white keys 5 and 13. Press
-   black key 3 for the hat, then every other white key. Press **PLAY**.
+## From Circuit Tracks to MiniTraxFM
 
-   <img src="img/screen-beat-playing.png" width="240" alt="Steps on T1 kit, playing: kick on 1, 5, 9 and 13, snare on 5 and 13, hats between; a tick for every sound on a step, the playhead lit" title="The beat playing">
-2. **A bass line.** Turn **ALGORITHM** to T2, the bass. Hold **SEQ** and play a low note. While you hold **SEQ**,
-   the keys play like a keyboard, and LOOM-8 remembers the note you played. Let go and press white keys 1, 4, 7
-   and 11 to put it on those steps. Hold **SEQ** again, play another note, let go and press white key 14. Or tap
-   **REC** and play the notes one after another, and each one lands on the next step. Press **EDIT** and turn
-   **KNOB 1** while it plays to hear the shape change.
+| Circuit Tracks | MiniTraxFM | |
+| --- | --- | --- |
+| Synth 1 | track 1, synth 1 | a polyphonic synth, its sound made from the project's patch |
+| Synth 2 | track 2, synth 2 | as synth 1 |
+| MIDI 1 | track 3, midi 1 | a polyphonic synth (on the Circuit it played another instrument) |
+| MIDI 2 | track 4, midi 2 | as midi 1 |
+| Drum 1 | track 5, drum 1 | a sample drum track: up to 11 samples, one hit at a time |
+| Drum 2 to 4 | tracks 6 to 8 | as drum 1 |
 
-   <img src="img/screen-seq-held.png" width="240" alt="Steps on T2 with SEQ held: the keys play notes, and the line above the grid says the notes a step will write" title="SEQ held on Steps"> <img src="img/screen-step-record2.png" width="240" alt="Step record on T2: the red cursor on the next step after the notes written so far; the footer says KEYS write, OCT skip or back, REC+OCT clear, REC done" title="Step record">
-3. **Tricks.** Still on T2, hold white key 7 and press **ARP**. Turn **KNOB 1** to multiply and **KNOB 2** to 3,
-   and step 7 plays three hits. Let go. Now hold white key 14, press **ARP**, turn **KNOB 1** to jump and **KNOB 2**
-   to "either", and the pattern starts to wander. Last, hold white key 1, press **ARP** and turn **KNOB 1** to
-   skip trig, so step 1 only plays every other time round.
+The tracks keep the Circuit's colours on the screen: synth 1 violet, synth 2 pale green, midi 1 blue, midi 2 pink,
+drum 1 orange, drum 2 yellow, drum 3 purple and drum 4 aqua.
 
-   <img src="img/screen-trick.png" width="240" alt="Step 7 held with ARP: multiply 3 on the step; the knob strip shows its two trick slots and their values" title="A trick on step 7">
-4. **A chord track.** Turn **ALGORITHM** to T3. Press **EDIT** and turn **PRESETS** until you find a pad you
-   like. Press **SEQ**, then hold **SEQ** and three keys together. Let go and press white key 1 to put the chord
-   there. To make it last half the bar, hold white key 1 and press white key 8; a line under the cells shows how
-   far it reaches. Now hold **SEQ** and three keys a little higher, let go and press white key 9. Each cell shows
-   the name of its chord.
+What is different:
 
-   <img src="img/screen-chords.png" width="240" alt="Steps on T3: a C chord on step 1 and a D minor on step 9, each named in its cell, with a bar under the steps they last" title="Two chords">
-5. **The conductor.** Turn **ALGORITHM** to COND and press **EDIT**. This is the conductor. It sets the key for
-   every melodic track, and it starts in C major. While the pattern plays, play an F, then a G, then a C, and the
-   whole band follows you, in key. The lit key is the chord's root, the key that plays the chord now sounding,
-   so you can see where the progression is. The same note in other octaves glows dimmer.
+- **Patterns** have up to 64 steps (the Circuit's have 32) and up to **four notes a step** (the Circuit's six). Of a
+  bigger chord the converter keeps the lowest and highest notes, then the loudest.
+- **Synth sounds** are rebuilt on MiniTraxFM's synths. They come close, but they are not the same: the converter's
+  report says what each patch lost (its wavetables, its second LFO, most mod matrix routes, the macros).
+- **Voices**: each synth track plays up to six notes at once, as on the Circuit, but the four synth tracks share
+  sixteen voices. The four drum tracks share four sample voices, one each.
+- **Samples**: the sample bank holds about 19 seconds at 22 kHz, against the Circuit's 196. The converter keeps
+  only the samples the projects play, trims each to the longest it is ever heard, and leaves out the long ones (or
+  keeps them while there is room, with `--fill`).
+- **Projects**: MiniTraxFM holds three, the Circuit sixty-four. You pick which three when you convert.
+- **Songs**: a Circuit scene chain becomes a song. **PLAY** plays it from any page, and each part starts every
+  track from its first step, as a Circuit scene does.
 
-   To write a progression, press **SEQ**, turn **SELECT** to the Bar page and press black key 4, so each step
-   lasts a beat. Go back to Steps. Hold **SEQ** and play a chord, then let go and press a step. Do the same for
-   each chord; four steps make one bar. Or let T3's chords lead instead: press **EDIT**, turn **SELECT** to
-   Follow and press black key 3.
+## Getting a pack on
 
-   You can also have a track play the notes of the chord. On that track, press **SEL** and set FOLLOWS CONDUCTOR
-   to **harmony**, and each note moves to the nearest note in the chord. With **ch. deg**, each note's place in
-   the scale picks a note of the chord instead.
+**1. Convert it.** The converter runs on your computer, in MiniTraxFM's source folder, with Python 3:
 
-   <img src="img/screen-conductor.png" width="240" alt="The conductor&#x27;s Engine page: C major, degree 0, the tracks that follow lit; knobs key, scale, link" title="The conductor"> <img src="img/screen-conductor-follow.png" width="240" alt="The conductor&#x27;s Follow page: chords from T3, its box in its color among the tracks that follow; T3&#x27;s notes set the chord" title="Chords from a track">
-6. **Throws.** Press **FX** and turn **SELECT** to the last page, Throws. Hold a key in the lower octave to throw
-   an effect on the drums: F3 mutes them, G3 stutters them, A3 repeats, B3 echoes, C4 builds, D4 plays four on
-   the floor and E4 jumbles them. The upper octave does the same to the melodic tracks. Let go and the pattern
-   comes back.
+```
+./build.sh --host
+python3 tools/ct2mtx/ct2mtx.py "My Pack.circuittrackspack"
+```
 
-   <img src="img/screen-throws.png" width="240" alt="The throws&#x27; page: the two octaves of the keyboard, drums below and melodic above, with the effect held lit" title="Throws">
-7. **A scene.** Press **HOME**. White key 1 is the scene you're playing; press white key 2 to copy it into a new
-   scene. Now change something. Mute the drums with black key 1, or go to T2's Steps and turn **KNOB 1** to P2 for
-   a new pattern. Press white keys 1 and 2 to switch between your scenes. While it plays, the new scene waits for
-   the next bar; press its key again to switch right away.
+It writes `My Pack.mtx` (the three projects and their samples) and `My Pack.txt`, a report of what was kept,
+trimmed, replaced and left out. Options: `--projects 1,5,9` picks the pack's projects to convert,
+`--max-len 2` keeps samples up to 2 seconds (the default is 1.5), `--fill` keeps longer ones too while the bank has
+room, and `--no-alt` leaves a missing drum silent where it would otherwise get a stand-in from a small built-in set.
 
-   <img src="img/screen-arrange.png" width="240" alt="Arrange: each track&#x27;s pattern with its playhead, scene 2 playing; knobs tempo, groove, amount, the track's pattern" title="Arrange">
-8. **Save.** Press **SAVE**.
+**2. Load it.** Any of these:
 
-Next, hold a step to see its velocity, length, chance and pitch. Hold a step and press
-**EDIT** to lock a knob on it. Press **ARP** on T2 and turn **KNOB 1** to arp. Press **GLO**, turn **SELECT** to
-Master out and turn **KNOB 4** to make the mix pump while it plays. To find out what a button does, hold it for a
-second.
+- **On the FM-1, from the browser.** Open the [backup page](https://guinanno1.github.io/fm1-minitrax/backup/) in Chrome or Edge with the FM-1
+  connected by USB and stopped. Pick the `.mtx` file and **Restore**. MiniTraxFM asks on its screen: press **SEL**
+  for yes. The page then sends the samples, which takes about 20 seconds. This replaces all three projects.
+- **In the emulator.** Open the [emulator](https://guinanno1.github.io/fm1-minitrax/emu/), switch it on and press **Load converted pack…**.
+- **From a terminal**, in the source folder: `python3 base/tools/fm1_backup.py restore "My Pack.mtx"`, then
+  `python3 tools/loom_samples.py restore "My Pack.mtx"`.
+
+## Playing a converted song
+
+MiniTraxFM opens the project you saved or loaded last. To open another, press **HOME**, then **SEL**, pick LOAD
+PROJECT and turn **ALGORITHM** to its slot.
+
+- Press **PLAY**. A project with a song plays the song from its first part, from any page.
+- **HOME** shows the arrangement: a row for each track with its pattern and playhead, and the scene playing. The
+  black keys 1 to 8 mute the tracks. **KNOB 1** sets the tempo.
+- Turn **SELECT** on **HOME** for the Song page: the song's parts, each a scene played for a number of bars.
+- To loop one part instead of playing the song, press **PLAY** to stop, then press that scene's white key on
+  **HOME** and play it from the Song page's list, or from Arrange.
+
+## The tracks
+
+**Synth tracks (1 to 4).** Each can take one of six synths: knit (subtractive, with supersaw unison), rayon
+(two-operator FM), jacquard (wavetables), bellows (an organ), and cane and voile (physical models and voices from
+Mutable Instruments Braids). A converted patch arrives on knit. Press **EDIT** and turn **PRESETS** to try the
+factory sounds, or press **SEL** and pick ENGINE for another synth. A drum kit cannot go on a synth track.
+
+**Drum tracks (5 to 8).** Each is a kit of up to eleven samples on the black keys. A converted track has its own
+sample on key 1 and the samples its steps flip to on keys 2 to 11. Every key plays a sample, and the whole track is
+one choke group, so a new hit cuts the one before, as on the Circuit. Press **EDIT** and press a black key to pick
+the key the knobs edit: sample, pitch (24 semitones each way), start and reverse.
 
 ## Cheat sheet
 
@@ -108,9 +126,9 @@ second.
 - **Scene** (S1 to S32): which pattern each track plays, plus the mutes (a kit's individual sounds too) and the
   conductor's key.
 - **Song**: a chain of scenes, each played for a number of bars.
-- **Engine**: the way a track makes its sound. There are seven synths (knit, rayon, jacquard, bellows, cane, voile
-  and acid), two sample engines (sample and slice) and the kit, a drum synth.
-- **Preset**: a sound to load. 93 come with LOOM-8, from seven to eighteen for each engine, and 16 are your own.
+- **Engine**: the way a track makes its sound. Tracks 1 to 4 take one of six synths (knit, rayon, jacquard,
+  bellows, cane, voile); tracks 5 to 8 are sample kits.
+- **Preset**: a sound to load. Each synth has its factory presets, and 16 are your own.
 - **Player**: what the keys do on a track: arp, strum, hold or random.
 - **Conductor**: an aux track that sets the key, scale and chords for the other tracks. It plays its own chords,
   or takes them from a track's notes.
@@ -156,12 +174,10 @@ Count the white keys 1 to 16 from the left, and the black keys 1 to 11. "Hold **
 | change the pattern | On Steps, turn **KNOB 1**. While it plays, the new pattern comes in at the next bar line. Until then, the knob reads NEXT 1>2 and the tag line says "next P2". |
 | weave two patterns | On the track, press **ARP** and go to its last page, Weave. Press a black key for the track to weave in and a white key for its pattern; **KNOB 3** sets the rule. From then on, it plays woven. To bring it in by hand instead, set **KNOB 4** to "on WEAVE", then pick the WEAVE track with **ALGORITHM** and hold that track's white key. <!-- hint: press ARP; black 2; white 1; turn KNOB 3 --> |
 | change the sound | Press **EDIT** and turn **PRESETS** to step through the engine's own sounds. A name like "BASS 3/11" tells you what the sound is for and where you are in the list. **SEL** changes the engine. |
-| edit a drum sound | On a drum track, press **EDIT** and press the sound's black key. The knobs are the model's own four. Turn **SELECT** for the model, random, pan and volume. Its **SEL** list has the play mode. <!-- hint: press EDIT; black 1 --> |
+| edit a drum sound | On a drum track, press **EDIT** and press the sound's black key. The knobs are the sample's: sample, pitch, start, reverse. Turn **SELECT** for random, pan and volume. Its **SEL** list has the play mode. <!-- hint: press EDIT; black 1 --> |
 | shape one drum | On a drum track, press **ENV** and press the drum's black key to get its own attack, hold, decay and lag. Turn **SELECT** for its filter: **PRESETS** picks low-pass, high-pass or band-pass, and the knobs set cutoff, resonance, envelope and drive. <!-- hint: press ENV; black 1 --> |
-| play a sample | On a drum track, set a key's model to sample. On a synth track, press **SEL** and set ENGINE to sample. The sample knob picks the sample. |
-| load my own samples | Open <https://charlesvestal.github.io/fm1-loom/samples/> in Chrome or Edge with the FM-1 connected by USB. Add, replace, rename, reorder or remove samples, then press Send. They come after the factory samples, as user 1, user 2 ... |
-| get the breaks back (0.7 on) | On the samples page, press Add the breaks, then Send. |
-| chop a break | On a synth track, press **SEL** and set ENGINE to slice. Each key plays one slice of the break, with F3 playing the first. Write them on the steps in any order. To load your own break, run `tools/loom_samples.py load "amen.wav@2"` (here, a loop of 2 bars). |
+| play a sample | On a drum track, press **EDIT**, press a black key and turn the sample knob. |
+| load a pack's samples | Convert the pack and load it ([Getting a pack on](#getting-a-pack-on)): its samples come with it. |
 | change the filter | Press **ENV** and turn **SELECT** to Filter. **PRESETS** changes the filter type. |
 | give a sound some character | Press **FX** for the Character page. **PRESETS** changes the type (drive, fold, crush, ring, tilt, tape, sampler), and the knobs set its amount, tone and mix. |
 | use the effects | Press **FX** and turn **SELECT** to Sends, the track's sends. Keep turning to reach FX I and FX II, where **PRESETS** picks the effect. |
@@ -185,7 +201,7 @@ Count the white keys 1 to 16 from the left, and the black keys 1 to 11. "Hold **
 | let a track lead the chords | On COND, press **EDIT** and turn **SELECT** to Follow. Press the track's black key, and its notes set the chord for the others. A chord part or a bass line works well. Press the same key again to turn it off. <!-- hint: press EDIT; turn SELECT; black 3 --> |
 | harmonize a track to the chords | Give the conductor some chords: play them on COND's keys, or let a track lead from its Follow page. Then go to the track you want to harmonize, press **SEL** and set FOLLOWS CONDUCTOR to harmony. Each of its notes snaps to the nearest note of the conductor's chord. With **ch. deg**, each note's place in the scale picks a chord note instead. <!-- hint: press EDIT; press SEL; turn ALGORITHM --> |
 | get new sounds for the band | Press **HOME**, press **SEL** and pick RANDOMIZE PRESETS: T2 to T8 each get a random preset for their part. Press **SEL** for yes. |
-| save | LOOM-8 saves by itself when it is stopped and quiet. **SAVE** saves at once. Hold **SAVE** and press white key 1 to 3 to save to that slot. <!-- hint: press SAVE --> |
+| save | MiniTraxFM saves by itself when it is stopped and quiet. **SAVE** saves at once. Hold **SAVE** and press white key 1 to 3 to save to that slot. <!-- hint: press SAVE --> |
 | keep a sound | On a sound page, hold **SAVE** and press a white key. The sound becomes that user preset. <!-- hint: hold SAVE; white 1 --> |
 | load a project | Press **HOME** and press **SEL**. On LOAD PROJECT, turn **ALGORITHM** to pick the slot, then press **SEL**. NEW PROJECT starts an empty project in a free slot, with its sounds picked at random (new ones, as RANDOMIZE PRESETS gives). <!-- hint: press HOME, SEL; turn ALGORITHM --> |
 | listen on Bluetooth headphones | Put them in pairing mode. Press **GLO**, turn **SELECT** to Setup and press **SEL**. Turn **SELECT** to AUDIO DEVICE and press **SEL**. Turn **SELECT** to the headphones and press **SEL**. |
@@ -196,10 +212,10 @@ Count the white keys 1 to 16 from the left, and the black keys 1 to 11. "Hold **
 | --- | --- |
 | **PLAY** | Starts and stops. Every track starts from step 1. To start from the bar on screen instead, hold **SEQ** on Steps or Bar and press **PLAY**. If you change a track's scale or length, it stays in time with the others. On the Song page, it plays the song from the selected slot. Hold **REC** and press **PLAY** to record live. |
 | **REC** | While it plays, hold **REC** to record for as long as you hold it. On a sound page, the knobs you turn are recorded too. While stopped, tap it to start step recording. Hold it while stopped (or on Steps) to set up recording with the knobs: click, count-in, quantize and mode. |
-| **SEL** | Opens a list of this page's settings and actions. Hold a step and press it to see the step's notes. When LOOM-8 asks a question, **SEL** means yes. |
-| **HOME** | Opens Arrange. On Arrange, it opens the Song page. Hold it as a shift key for buttons and knobs: undo and redo, fine tempo, and the scenes on **PRESETS**. When LOOM-8 asks a question, **HOME** means no. |
+| **SEL** | Opens a list of this page's settings and actions. Hold a step and press it to see the step's notes. When MiniTraxFM asks a question, **SEL** means yes. |
+| **HOME** | Opens Arrange. On Arrange, it opens the Song page. Hold it as a shift key for buttons and knobs: undo and redo, fine tempo, and the scenes on **PRESETS**. When MiniTraxFM asks a question, **HOME** means no. |
 | **SEQ** | Opens Steps; page 2 is Bar. Hold it on Steps and the keys play the track and set what a step writes (**PRESETS** sets the track's sound, and **OCT** moves the whole pattern an octave). Hold it on Bar and black keys 1 to 4 jump to a bar or loop bars. Hold it on Steps or Bar and press **PLAY** to start from the bar on screen. |
-| **EDIT** | Opens Engine. Page 2 is Play and page 3 is Play 2 (the octave). The knit, rayon and acid engines have a page 4, Sub, with the engine's second set of knobs. A sample track in a loop mode has its Loop page second. On a drum track, page 2 holds the key's model, random, pan and volume, and page 3 its sends. On the conductor, the pages are its key, the routing and Follow. |
+| **EDIT** | Opens Engine. Page 2 is Play and page 3 is Play 2 (the octave). The knit and rayon engines have a page 4, Sub, with the engine's second set of knobs. A sample track in a loop mode has its Loop page second. On a drum track, page 2 holds the key's random, pan and volume, and page 3 its sends. On the conductor, the pages are its key, the routing and Follow. |
 | **ENV** | Opens Envelope (on a drum track: lag, attack, random, length), then Filter, then the filter's envelope. |
 | **FX** | Opens Character, the track's own effect. Next come Sends, the track's sends to FX I and FX II, and then FX I and FX II, the two effects. |
 | **LFO** | Opens LFO. Page 2 has the type's fourth and fifth knobs. |
@@ -214,6 +230,7 @@ Count the white keys 1 to 16 from the left, and the black keys 1 to 11. "Hold **
 
 Hold any button for a second, and a card explains it. The two lines at the bottom of the screen always say
 what each control does on the page you're on.
+
 
 ## Getting around
 
@@ -250,7 +267,7 @@ touching: the held step, the cursor, the knob you turned. Red is used only for r
 
 Short messages cover the header for a moment. An **i** is news, and a **✓** means something is done. An arrow
 means an undo or a redo. A **?** on red is a question, waiting for you to press **SEL** or **HOME**. A **!** means
-LOOM-8 couldn't do something, and the message tells you why.
+MiniTraxFM couldn't do something, and the message tells you why.
 
 <img src="img/screen-card.png" width="240" alt="SEQ held alone for a second: a card explaining the Steps page; let go and nothing changes" title="A help card">
 
@@ -269,6 +286,7 @@ armed. **SAVE** lights when there is something to save, and the current page's b
 with notes glow and the step playing is bright. On Arrange, the scenes in use glow and the one playing is bright.
 On Arrange and Mix, a track's black key is lit while the track plays. It is bright for the selected track and dark
 while the track is muted. Turn Setup's LIGHTS on to make the other buttons glow too.
+
 
 ## Steps
 
@@ -489,6 +507,7 @@ melody's notes.
 
 <img src="img/screen-weave.png" width="240" alt="ARP's Weave page on T2: T2 weaves with T1, by rhythm: T2 P1's rhythm, T1 P1's pitch; rows for T2 P1's steps, T1 P1's, and what plays; on, it plays woven" title="A weave set up"> <img src="img/screen-woven.png" width="240" alt="The WEAVE track's page: ten boxes, T1 to T8, COND and THROW; T2's lit while its key is held, its weave T1 P1, rhythm" title="Weaving">
 
+
 ## Recording
 
 - To record live, hold **REC** and press **PLAY**. Every track starts from step 1, and recording starts at once,
@@ -525,6 +544,7 @@ melody's notes.
 Hold **HOME** and press **REC** to undo the last change, and hold **HOME** and press **PLAY** to redo it. There is
 one level of undo, and it covers whatever changed last. That can be a pattern with its locks (including CLEAR
 LOCKS), a track's sound (or T2 to T8 after RANDOMIZE PRESETS), the master, or the song, scenes and weaves.
+
 
 ## Sounds
 
@@ -583,11 +603,7 @@ tonality is **ignore** follows nothing.
 | bellows | stops, pedal, rotor, rate | 9 |
 | cane | model, timbre, color, damp | 8 |
 | voile | model, timbre, color, breath | 7 |
-| sample | sample, start, length, mode | 18 |
-| slice | sample, slices, pitch, gate | 11 |
-| acid | wave, accent, slide, tune | 8 |
-| kit | the model knobs of the key shown | |
-| midi | eight knobs, each sending a CC | |
+| kit | the sample knobs of the key shown: sample, pitch, start, reverse | |
 
 Knit and rayon have a second set of knobs. To reach them, press **EDIT** and turn **SELECT** to the Sub page.
 
@@ -640,7 +656,7 @@ transistor, combo, jazz, gospel, rock, theater, pipe or church. **pedal** adds t
 
 These two engines come from Mutable Instruments' Braids, Émilie Gillet's macro oscillator. Each one is a family of
 Braids models, and **model** picks one. **timbre** and **color** are Braids' own two knobs, and what they do depends
-on the model. The fourth knob is LOOM-8's own.
+on the model. The fourth knob is MiniTraxFM's own.
 
 **Cane** plays the physical models. These are instruments built from their parts, such as a string, a tube or a bell.
 
@@ -679,103 +695,16 @@ Turn it all the way up for a pure whisper.
 Most of these models cost about as much as any other voice, or less. Cane's bell, with its eleven partials, costs
 about a third more.
 
-### Acid
-
-**Acid** is a bass line machine after the TB-303. It is X0X's 303, which is Open303 with the Devilfish's extra
-controls. It is the whole instrument, with its own filter, envelopes, accent and slide, so on an acid track the pages
-hold the 303's knobs. Each Devilfish knob starts where the stock 303 has it.
-
-| Page | Knobs |
-| --- | --- |
-| Engine | **wave** is saw or square. **accent** sets how hard an accented note hits. **slide** sets how long a slide takes, from 2 to 360 ms. **tune** is the 303's tuning, about a semitone and a half either way. |
-| Envelope | **attack** sets how the filter opens on a plain note, from a snap to a swell (0.3 ms to 3 s). **decay** sets how long the filter takes to close (0.2 to 2 s). **acc dec** does the same for an accented note (30 ms to 3 s). **length** sets how long a held note takes to fade (30 ms to 3 s). |
-| Filter | **cutoff** goes from 60 Hz to 2.4 kHz, before the envelope opens it. The top half is the stock 303's range, from 870 Hz. The bottom half goes darker than a 303 can, which stops at 314 Hz. **reso** is the resonance. **env mod** sets how far each note opens the filter. **low cut** sets how much bass stays in the resonance, from 350 down to 100 Hz. |
-| Sub | **drive** and its **type**: off, soft or rat (a distortion pedal's clipping). **shaper** sets how square the square wave is. It works only with wave on square, and most of its change is in the bottom third of the knob. |
-
-The picture on the Envelope page draws three seconds of the filter opening and closing. An accented note's curve is
-drawn dimmer, and the held note's level is a line. An acid track has no filter envelope page, and its filter type is
-the 303's own. It plays one note at a time, whatever the Play page's mode says.
-
-Accents, slides and ties come from the steps:
-
-- **Accent**: a step with a velocity of 112 or more. To set it, hold the step and turn **KNOB 1**. The "accent"
-  groove adds velocity on the beats, which accents them.
-- **Slide**: when a note is still held as the next one starts, it slides into it without a new attack. Make a step
-  long enough to reach the next note (hold it and turn **KNOB 2**). Or give the next step the **glide** trick, which
-  slides into it even after a short note. When you play live, keys held legato slide.
-- **Tie**: a long step is one long note. A slide onto the same pitch also keeps the note going, so a held step
-  followed by a step on the same note with **glide** sounds as one.
-
-Two acid tracks can play at once. A third takes over the oldest one.
 
 ### Kit
 
-A drum track has eleven keys, and you play them on the black keys. Each key has a drum model: kick, snare, hat,
-clap, shaker, tambourine, string (a plucked string), conga, tom, fm or sample. It can also be one of the x models
-(x kick, x snare, x hat, x clap, x tom, x rim, x fm, x noise), sophie, clang, or one of the 909 models (909 kick,
-909 snare, 909 tom, 909 rim, 909 clap, 909 hat, 909 open, 909 ride, 909 crash). The kit is tuned to C: kick G1,
-snare G3, low tom C3, high tom G3, conga C4, string C3, fm C5. To pick the key the knobs edit, press a black key or
-turn **PRESETS**. The four knobs on the Engine page belong to that key's model:
+A drum track has eleven keys, and you play them on the black keys. In MiniTraxFM every key plays a sample from the
+sample bank. To pick the key the knobs edit, press a black key or turn **PRESETS**. The Engine page's four knobs
+are the sample's: sample (which one in the bank), pitch (24 semitones each way), start, and reverse.
 
-<img src="img/screen-drum-engine.png" width="240" alt="Engine on T1 kit: the eleven keys as pads, the snare picked; its knobs pitch, length, wires, punch" title="A drum key&#x27;s knobs"> <img src="img/screen-drum-key.png" width="240" alt="The Key page: the snare&#x27;s model, random, pan and volume" title="The Key page"> <img src="img/screen-drum-envelope.png" width="240" alt="ENV&#x27;s Kit env page on a drum track: lag, attack, random and length for the whole kit" title="The kit&#x27;s envelope">
-
-| Model | Knobs |
-| --- | --- |
-| kick | pitch, length, punch, tone |
-| snare | pitch, length, wires, punch |
-| hat | pitch, length, metal, focus |
-| clap | tone, length, spread, tail |
-| shaker | color, length, swell, return |
-| tambourine | tone, length, jingle, hiss |
-| string | pitch, length, bright, pluck |
-| conga | pitch, length, slide, drive |
-| tom | pitch, length, sweep, rate |
-| fm | pitch, length, mod, feedback |
-| sample | sample, pitch (24 semitones each way), start, reverse |
-| x kick | pitch, length, tone, sweep · click, harm, drive |
-| x snare | pitch, length, tone, snap · wire, body, drive |
-| x hat | pitch, length, tone, res · noise, metal, drive |
-| x clap | tone, length, drive |
-| x tom | pitch, length, tone, sweep · noise, fm, drive |
-| x rim | pitch, length, tone, sweep · noise, drive |
-| x fm | pitch, length, ratio, mod decay · click, index, drive |
-| x noise | tone, length, drive |
-| sophie | pitch, length, color, metal · model, feedback, sweep, crush |
-| clang | pitch, length, color, metal · model, sweep, feedback, fold |
-| 909 kick | pitch, decay, attack, sweep · depth, drive, shape |
-| 909 snare | pitch, decay, snappy, tone · drive, shape |
-| 909 tom | pitch, decay, attack, size · drive, shape |
-| 909 rim | pitch, drive, shape |
-| 909 clap | tone, tail, drive, shape |
-| 909 hat, 909 open | pitch, decay, drive, shape |
-| 909 ride, 909 crash | pitch, decay, drive, shape |
-
-The knobs after the dot are on a second Engine page. Turn **SELECT** to reach them.
-
-- The **x models** are the eight drum engines of Omodaka9375's MACHINEDRUM, a drum machine in the browser. Their
-  pitch is a note number, and 60 is middle C. Long lengths and high pitches turn the hat into cymbals. On x fm,
-  mod decay sets how soon its brightness falls.
-- **sophie** is Matt Estela's Sophie, metallic FM percussion. Its model knob picks the voice: fuse, stack, split,
-  shard, pipe, boom, or its kick. color sets the inharmonic partials, metal sets how much FM, and feedback sets how
-  much the operator feeds itself. Turn sweep right to drop the pitch, or left to raise it. crush lowers the bit
-  depth.
-- **clang** is digisophie, the version of Sophie made for the Digitakt. It has two operators and is coarser and
-  cheaper, with a wavefolder (fold).
-- The **909 models** are athousanddetails' 9W9. They are circuit models of the TR-909's kick, snare, toms, rim shot
-  and clap, with its knobs. On the kick, attack is the beater's click, sweep sets how long the pitch takes to fall,
-  and depth sets how far. On the snare, snappy is the wires and tone sets how long they ring. On the tom, size picks
-  the low, mid or high tom, and attack is the stick. shape is 9W9's distortion (diode, clip, sat, fuzz, pdist, fold,
-  crush), and drive pushes it. Eight 909 hits can sound at once across every drum track, and a ninth takes over the
-  oldest.
-- The **909 hat, open hat, ride and crash** are 9W9's cymbals. They play the samples the TR-909 plays its cymbals
-  from (ER-99's, as 9W9 has them), with 9W9's knobs. pitch plays the sample slower or faster, up to two octaves each
-  way, and decay sets how long it rings. As on the 909, both hats play the same sample. Give the hat and the open hat
-  the same choke group so that each cuts the other off. The samples live beside the firmware, not in it. The
-  installer writes them after an update, which takes a few seconds for about 70 KB. Until it has, these four models
-  are silent, and picking one says NO SAMPLES. Installing again from the site writes them.
-
-The x models and clang cost up to twice as much as a voice of a built-in model, and sophie and the 909 models up to
-three times as much. Even with a kit made of them, the busiest demo stays well within what the FM-1 can do.
+A converted drum track puts its own sample on key 1 and the samples its steps flip to on keys 2 to 11. All eleven
+keys share choke group 1, so the track plays one hit at a time, as the Circuit's drum tracks do. The Key page's
+**SEL** list can set a key to one-shot, gated or loop instead.
 
 On every sound page of a drum track, a black key picks the key the knobs edit. On **EDIT**'s pages, the white keys
 then put that key on the bar's steps, just as on Steps. Tap to add it and tap again to take it off, and the keys
@@ -791,26 +720,11 @@ It copies the model, knobs, envelope, filter and sends. This is a quick way to s
 four pages.
 
 **Kits.** On a kit track, **EDIT**'s **SEL** list has **KIT** and **SAVE KIT**. Use KIT to load a whole kit onto the
-track. You get its eleven keys with all their settings, plus the kit's envelope, filter, LFO and character. The
-track's level, pan, player and MIDI OUT stay as they are. LOOM-8 comes with eleven kits, named for fibers and cloth:
+track: its eleven keys with all their settings, plus the kit's envelope, filter, LFO and character. The track's
+level, pan, player and MIDI OUT stay as they are. LOOM-8's factory kits are drum models, not samples, so MiniTraxFM
+offers only your own kits.
 
-- **Loom**: the kit a new project starts with.
-- **Nylon**: the x models throughout.
-- **Elastane**: sophie throughout, rubbery, with a bouncing kick, crushed ticks, a latex snap and toms that boing.
-- **Wire**: clang throughout, hard and metallic, short, bright and folded.
-- **Burlap**: rough and quick, with a tight kick, a cracking snare, a ghost snare on the clap's key and a ride.
-- **Sequin**: shiny, with a long boom, a full-bodied snare and clap, FM toms and a driven shaker.
-- **Frayed**: crushed and folded, with Sophie's crusher and digisophie's fold.
-- **Denim**: the factory 909 samples, with sophie's toms and the x models' conga and shaker.
-- **Linen**: short and dry, with a tight kick, ticking hats, clicks and a small clap.
-- **Velvet**: deep, with a round, long kick, the 909 clap, dusty hats and a round conga.
-- **Twill**: the 909's own circuits and cymbals (9W9's kick, snare, toms, clap, rim shot and hats).
-
-The new kits keep the default kit's layout: kick, snare, closed hat, open hat (these two share choke group 1),
-clap, low and high tom, conga, shaker, string, and fm (a short FM blip). That way a pattern plays the same parts on
-every kit.
-
-SAVE KIT stores the track's kit in one of eight user kits, K1 to K8, named after the track's sound. LOOM-8 asks
+SAVE KIT stores the track's kit in one of eight user kits, K1 to K8, named after the track's sound. MiniTraxFM asks
 before it replaces one. After that, KIT loads your kits just like the others, in any project. User kits are kept
 with the user presets, and a backup includes them too.
 
@@ -848,179 +762,6 @@ The **sample** model plays a sample from the bank on the key. The bank is descri
 pitch tunes it up to 24 semitones either way from its own rate, start makes it begin later, and reverse plays it
 from the end back to the start. It plays to the end of the sample, or for as long as the key's decay allows. Four
 sample keys can sound at once, and a fifth takes over from the oldest.
-### Samples
-
-LOOM-8 carries a bank of samples. Sixteen of them are its own. There's a 909 kick, snare, hat and clap, a noise
-sweep, and piano, upright bass, strings, brass, flute and an orchestra hit. There's a vinyl loop, and four breaks
-for the slice engine (classic, heat, choke and ecstasy). After those come thirty-two slots for your own samples,
-user 1 to user 32. The sample model on a drum key and the sample engine on a synth track both play them, and the
-knob shows each one's name.
-
-LOOM-8's own sounds live in the sample bank, in the FM-1's flash, beside yours. The bank holds 214 KB of sound,
-about 19 seconds at 22 kHz. The twelve sounds other than the breaks take 86 KB of it. The installer puts them
-there after your samples. (Before 0.8, they were built into the firmware.) They don't use up user slots, so user 1
-to user 32 are all still yours. The sounds keep their own places on the sample knob, so kits, presets and your
-projects can find them.
-
-If your samples leave no room for LOOM-8's sounds, the installer asks you first. You can make room by storing the
-samples it names at a lower rate, install without the sounds, or stop. A lower rate loses everything above half
-that rate, and you can't undo it on the FM-1, so keep the original files. Without the sounds, the kits and presets
-that use them are silent, and the picture says "install the sounds: samples page". To add them later, open
-[the samples page](https://charlesvestal.github.io/fm1-loom/samples/), press **Add LOOM-8's sounds**, then Send.
-You can also run `tools/loom_samples.py factory`, and add `--make-room` to make room the same way.
-
-Since 0.7, the four breaks aren't in the firmware either. To add them, press **Add the breaks** on the samples
-page, then Send, or run `tools/loom_samples.py load breaks`. They take 92 KB. They keep their own places on the
-sample knob, so the slice presets and your projects find them by name. Until you add them, the breaks are silent
-and the picture says "install the breaks: samples page".
-
-The **sample** engine plays a sample at the pitch of the note. The sample's root note plays it at its own rate,
-and an octave up plays it twice as fast. Its knobs:
-
-| Knob | What it does |
-| --- | --- |
-| sample | Picks the sample. An empty user slot plays nothing. |
-| start | Sets where it begins, 0 to 99 % of the way in. |
-| length | Sets how much of the rest plays. At 100 % it plays to the end. |
-| mode | one-shot plays once, then the note ends. loop plays round and round, and a sample with its own loop loops that part. reverse plays once, backwards. ping-pong plays forward, then back. |
-
-The picture shows the sample's waveform. The part that plays is drawn bright, a dot marks where it starts, and
-the loop's ends are marked. In loop and ping-pong modes, **SELECT** has one more page, Loop, right after Engine.
-Use **loop start** to set where the loop begins within the part that plays, and **loop len** to set how much of
-the rest it loops. At 0, loop len reads "auto", and it uses the sample's own loop or loops to the end. The loop
-point is crossfaded over 8 ms, so you won't hear a click wherever you set it. After that, the track's envelopes,
-filter, character and LFO shape the sound as they do for any engine. There are eighteen presets:
-
-- piano is looped, with a little tape. dusty keys is darker, with the tape wobbling. piano stab is short and
-  bright, and rev piano is the piano backwards.
-- upright and dusty bass are the upright bass, plucked. dusty bass is short and deep in the tape.
-- strings, str stab and swell. str stab is the section's attack, cut short, and swell is the strings backwards.
-- brass and horn stab.
-- flute and air flute. air flute is an octave down, played as a pad.
-- orch hit and dark hit, which is an octave down.
-- vinyl is the run-out groove, riser is the noise sweep, and boom is the kick, low and long.
-
-<img src="img/screen-sample-engine.png" width="240" alt="Engine on T3 sample: the piano&#x27;s waveform, its root C4, in loop mode; knobs sample, start, length, mode" title="The sample engine">
-
-### Slice
-
-The **slice** engine cuts a loop, such as a break, into even slices and plays one slice per note. The sample's
-root note plays slice 1, the next note up plays slice 2, and so on. After the last slice, it wraps round to the
-first. With eight slices, F3 to C4 play slices 1 to 8, and C#4 plays slice 1 again. Below the root, the notes
-count back from the last slice. With the keys at their own octave, F3 (the lowest key) plays slice 1 of a factory
-break. Write slices on the steps to replay the break, with slice k on every other step for eight slices over a
-bar. Or build a new beat from its pieces, in any order, with repeats and gaps. Its knobs:
-
-| Knob | What it does |
-| --- | --- |
-| sample | Picks the loop: the factory break, or one of yours. |
-| slices | Cuts it into 4, 8, 16 or 32 even slices. |
-| pitch | Moves it up to 24 semitones either way. Down, a slice plays slower and runs longer than its place. Up, it plays faster and shorter. |
-| gate | Sets how much of each slice plays, all of it at 100 %. Both ends get a short fade, so a cut never clicks. |
-
-A loop that knows how many bars it lasts follows the tempo, so its bars last as many bars of the song. A factory
-break plays slower at a slower tempo, with each slice still on its steps, and the pitch knob works on top of
-that. A sample without a bar count plays at its own speed, and the picture says "own speed".
-
-How notes overlap depends on the play mode:
-
-- In poly mode, each note plays its slice up to its gate and overlaps the next one.
-- In mono mode, a new note cuts off the playing slice with a quick fade and starts the new slice from its
-  beginning.
-- In legato mode, a new note moves to the same position in the new slice, so the time keeps running.
-
-After that, the envelopes, filter, character and LFO shape the sound as they do for any engine. The presets keep
-the filter's key tracking at 0, so every slice sounds alike. A slice always plays to its gate, however short the
-note. The gate sets the length, not the step, so slices on the steps play through just as the break did.
-
-When you choose the slice engine from **SEL**, the track comes off the conductor. Its notes pick slices, and a
-chord change would move them. Turn FOLLOWS CONDUCTOR back on if you want it.
-
-The picture shows the loop's waveform cut at the slices. Each slice's gated part is drawn, and what the gate
-leaves out is faint. The playing slice is lit, with a line at the play position, and slice 1 has a dot. Above
-the waveform are the loop's name and bars, and the slice count or the slice playing. There are eleven presets:
-
-- breaks, heat, choke and ecstasy play each break in eight slices, as it was played.
-- jungle plays classic in sixteenths, driven, with each slice cutting off the last.
-- roller plays choke in sixteenths, tight.
-- two step plays choke in sixteenths, short, with a touch of delay.
-- dusty loop plays ecstasy three semitones down, in the tape.
-- half time plays classic an octave down, dark.
-- hits plays classic's eighths one at a time, short, so you can play them as a kit.
-- ghosts plays classic's sixteenths, soft and short, to sit under another beat.
-
-<img src="img/screen-slice-engine.png" width="240" alt="Engine on T3 slice: the classic break&#x27;s waveform (1 bar) cut in eight, slice 5 playing; knobs sample classic, slices 8, pitch 0 st, gate 100 %" title="The slice engine">
-
-**Your own samples.** Connect the FM-1, running LOOM-8, to a computer by USB. Open the Samples page,
-<https://charlesvestal.github.io/fm1-loom/samples/>, in Chrome or Edge, and press Connect to read the samples on
-the FM-1. From there you can:
-
-- add files (WAV, AIFF, MP3 or FLAC) by dropping them on the page
-- replace a sample by dropping a file on it
-- rename, move up or down, or remove samples
-- set each sample's root note and, for a loop, its bars
-
-Then press Send. The samples already on the FM-1 are kept exactly as they were. Use Quality to pick the rate new
-samples are stored at. On auto, it picks the best rate at which everything fits.
-
-You can do the same from the command line, in the firmware's folder:
-
-```sh
-pip install mido python-rtmidi numpy
-python3 tools/loom_samples.py load kick.wav snare.wav "vox=ah_A3.wav" "pad=pad.wav:57" "amen=amen.wav@1%32k"
-python3 tools/loom_samples.py info
-python3 tools/loom_samples.py erase
-```
-
-`load` replaces the user samples with the files you give, in that order: user 1, user 2, and so on, up to 32.
-Each WAV can be any rate, mono or stereo, 8 to 32 bit. The tool converts it to mono at its own sample rate and
-evens out its peak level.
-
-- `NAME=` sets the name shown on the screen (11 characters). Without it, the tool uses the file's name.
-- `:ROOT` sets the note that plays the sample at its own pitch on a synth track. Without it, the tool uses a note
-  in the file's name (such as "ah_A3"), or C4.
-- A loop stored in the WAV is kept.
-- `@BARS` marks the file as a loop of that many bars (1 to 16), for the slice engine. The loop then follows the
-  tempo, and its root (slice 1) is F3 unless `:ROOT` says otherwise. The tool prints the tempo the loop has at its
-  own speed. Trim the loop to exactly its bars first, because the slices are even cuts of the whole file.
-
-**How much fits.** The bank holds 214 KB of sound. Each sample keeps its own rate, and a lower rate fits more:
-
-| rate | keeps sound up to | fits in all |
-|---|---|---|
-| 32000 Hz (`%32k`) | 16 kHz: bright drums and loops | 12 seconds |
-| 22050 Hz (`%22k`) | 11 kHz: most sounds | 17.7 seconds |
-| 16000 Hz (`%16k`) | 8 kHz: bass, pads, voices | 24 seconds |
-| 11025 Hz (`%11k`) | 5.5 kHz: lo-fi, sub bass | 35 seconds |
-
-Put `%RATE` after a file to set its rate, or put `--rate RATE` right after `load` to set the rate for the rest.
-Otherwise the tool picks the highest of 22050, 16000 and 11025 Hz at which everything fits. It prints each
-sample's rate, length and size, and the seconds left at each rate. A bar at 120 BPM is two seconds, so eight
-one-bar breaks fit at 22050 Hz. A sample plays at its own pitch whatever its rate, and a loop with `@BARS` keeps
-the tempo. A higher rate only costs room, plus a little more of the FM-1's time while it plays. One sample can be
-up to about 16 seconds long at 22050 Hz.
-
-The sound stops while the FM-1 writes the samples, and a fuller bank takes longer. When the screen says LOADED,
-the FM-1 has checked every byte. A track that was playing a sample keeps pointing at the same slot, so user 2 is
-still user 2, whatever is in it now.
-
-### MIDI
-
-Use the **midi** engine to play an outside synth instead of one of LOOM-8's own sounds. The track makes no sound
-on the FM-1. Its notes from the keys, the steps, the arp and strums go out over USB and Bluetooth on the track's
-own channel: T1 on channel 1, up to T8 on channel 8. They go out whether or not the track's MIDI OUT is on.
-
-It has eight knobs, four on the Engine page and four more on Engine 2. To reach Engine 2, press **EDIT** and turn
-**SELECT**. Each knob sends a CC on the track's channel whenever it moves, whether you turn it, a step's lock
-moves it, or recorded motion plays it back. The picture shows all eight as bars, with the page's four bright and
-each one's CC number under it. To change which CC a knob sends, press **SEL** and turn KNOB 1 CC to KNOB 8 CC (0
-to 119). They start as 74, 71, 73 and 72, which are cutoff, resonance, attack and release on most synths. The
-next four are 1, 75, 91 and 93: mod wheel, decay, reverb and chorus.
-
-A MIDI track has no envelope, filter, LFO, character or sends, so **ENV** and **LFO** take you to its knobs.
-**FX** shows only FX I, FX II and Throws. Play keeps its glide, voice mode and octave. SCRAMBLE sets the eight
-knobs at random and leaves their CC numbers alone. CC 9 on the track's channel still mutes it, but other CCs
-coming in on its channel do nothing. That way, a synth that echoes CCs back can't change the CC numbers.
 
 ### The synth pages
 
@@ -1081,6 +822,7 @@ the amount through the voice module's fourth knob, "character". On a kit, the ch
 and comes after its bus filter. The keys' sends are taken before it. A kit's ring uses a ratio of C4, and its
 tape has no wow.
 
+
 ## Players
 
 Press **ARP** and turn **KNOB 1** to pick the player: off, arp, strum, hold or random.
@@ -1128,6 +870,7 @@ together with any keys you hold. Give the step a longer **LENGTH** for more note
 in the strum's direction and roll, and every note ends with the step. A step with one note strums the strum's
 chord from that note, just as a key does. When you change the player, or turn its hold off with no key down, it
 lets go of whatever it was holding.
+
 ## Arrange, scenes and the song
 
 Press **HOME** to see the whole arrangement. Each row is a track, with its pattern and a playhead. A small meter at
@@ -1151,7 +894,7 @@ that is playing.
 - Turn **PRESETS** to cue the next scene for the next bar in the same way. It steps through the scenes you've
   made and skips the empty ones, so a turn never makes a new scene.
 - Press an empty scene's key to turn it into a copy of the scene that is playing.
-- Hold a white key for a second to clear that scene. The playing scene keeps going while LOOM-8 asks you to
+- Hold a white key for a second to clear that scene. The playing scene keeps going while MiniTraxFM asks you to
   confirm. Holding an empty scene's key does nothing.
 
 The black keys mute. Keys 1 to 8 mute the tracks, 9 mutes the conductor and 10 mutes the throws. A kit track's
@@ -1188,6 +931,7 @@ Press **PLAY** on the Song page to play the song from the selected slot. To play
 the **SEL** list. As the song plays, a bar along the bottom of the playing slot fills up over its bars. The **SEL**
 list can also insert the scene that is playing (INSERT SLOT), repeat the selected slot right after itself
 (DUPLICATE SLOT), delete a slot or clear the song.
+
 
 ## The aux tracks
 
@@ -1274,7 +1018,7 @@ under **SEQ**.
   either way. The delay holds half a second, so it halves a time longer than that and the knob shows what plays. For
   example, below 120 BPM a 1/4 shows "1/4 as 1/8", and below 90 BPM a 1/8D shows "1/8D as 1/16D".
 
-  The reverb has eleven modes, and **PRESETS** steps through them after the phaser. **plate** is LOOM-8's own.
+  The reverb has eleven modes, and **PRESETS** steps through them after the phaser. **plate** is MiniTraxFM's own.
   Nine come from the PlayStation's sound chip, the reverbs its games used: **room**, **studio S**, **studio M** and
   **studio L** (small, medium and large), **hall**, **half echo**, **space echo**, **chaos echo** and **one echo**.
   Chaos echo almost never stops, and one echo is a single repeat. **lush** is a smooth, wide plate based on Jon
@@ -1286,6 +1030,7 @@ under **SEQ**.
   the tail below the middle and thins it above. **damp** softens the reflections. When you change the mode, the
   reverb goes empty for a moment. On **lush**, **size** also lengthens the gap before the tail, and **damp** darkens
   the tail as it fades. Only FX II has the reverb. FX I has the delay's memory in its place.
+
 
 ## Mix and master
 
@@ -1308,13 +1053,13 @@ Turn **SELECT** for more pages:
 
 On Setup, the knobs set the lights, the MIDI clock, sending MIDI notes and the theme. The clock is internal, receive
 or send (see MIDI, below). Sending notes is on to start with. The theme is b/w to start with, or tape deck or
-blueprint. The page also shows where the tempo comes from (LOOM-8, or a MIDI clock coming in), the USB audio level,
+blueprint. The page also shows where the tempo comes from (MiniTraxFM, or a MIDI clock coming in), the USB audio level,
 the autosave, Bluetooth audio and the Bluetooth MIDI device (see Bluetooth, below). The version is on the next page,
 Debug. The **SEL** list on Setup has the FM-1's own settings, in three groups:
 
 - Bluetooth: BT MIDI, MIDI DEVICE, BT AUDIO and AUDIO DEVICE.
 - USB and MIDI: the USB audio level, USB PORT, CLOCK, NOTES, CC IN, CC OUT and SCENES OUT.
-- LOOM-8: LIGHTS, THEME, AUTOSAVE and LOOP THROWS.
+- MiniTraxFM: LIGHTS, THEME, AUTOSAVE and LOOP THROWS.
 
 All of Setup's settings, the theme too, belong to the FM-1, not the project. Every project you load or start keeps
 them as you left them. On every page, the header shows the scene playing ("S3") before the tempo. You'll find the
@@ -1371,7 +1116,7 @@ gets out of the kick's way while the rest plays on.
 
 ### Bluetooth
 
-LOOM-8 can play through Bluetooth headphones or a Bluetooth speaker, and it can connect to a Bluetooth MIDI keyboard
+MiniTraxFM can play through Bluetooth headphones or a Bluetooth speaker, and it can connect to a Bluetooth MIDI keyboard
 or controller. Setup shows both. **BT audio** says off, the device playing, or what it is doing. **BT MIDI** says
 off, on, or the MIDI device connected. Press **SEL** on Setup and the list opens on BT MIDI. Its Bluetooth rows
 come in two pairs:
@@ -1386,24 +1131,24 @@ come in two pairs:
 - **AUDIO DEVICE** shows the headphones or speaker playing, or "choose". Press **SEL** to choose one.
 
 **Headphones and speakers.** Put the headphones or speaker in pairing mode, then press **SEL** on AUDIO DEVICE. The
-list's first line tells you what to do. It says "looking for devices..." while LOOM-8 looks, "pick a device. SEL
+list's first line tells you what to do. It says "looking for devices..." while MiniTraxFM looks, "pick a device. SEL
 connects" once it has found some, or "none found. In pairing mode?". The devices you've used before come first,
 marked "remembered". The one in use says "playing" or "connecting". After them come the ones it found, marked
-"new". Turn **SELECT** to one and press **SEL** to connect. A new one is paired and remembered, and LOOM-8 remembers
+"new". Turn **SELECT** to one and press **SEL** to connect. A new one is paired and remembered, and MiniTraxFM remembers
 four. While Bluetooth audio plays, the FM-1's own speaker and headphone jack are silent. The sound reaches your ears
 150 to 300 ms after you play, so use it for listening, not for playing in time.
 
 - **LOOK AGAIN** looks for devices again. The sound stops for a moment while it looks, because the radio can't look
   and play at once.
-- **FORGET** forgets a remembered device. Pick it with **ALGORITHM** and press **SEL**. LOOM-8 asks first.
+- **FORGET** forgets a remembered device. Pick it with **ALGORITHM** and press **SEL**. MiniTraxFM asks first.
 
-LOOM-8 keeps both settings over a restart. BT MIDI stays off if you switched it off, and when BT AUDIO is on,
-LOOM-8 connects the device you used last again. A new project, and every project you load, keeps them as they are.
+MiniTraxFM keeps both settings over a restart. BT MIDI stays off if you switched it off, and when BT AUDIO is on,
+MiniTraxFM connects the device you used last again. A new project, and every project you load, keeps them as they are.
 
-**MIDI devices.** Switch the keyboard or controller on, then press **SEL** on MIDI DEVICE. LOOM-8 looks for
+**MIDI devices.** Switch the keyboard or controller on, then press **SEL** on MIDI DEVICE. MiniTraxFM looks for
 Bluetooth MIDI devices while the list is open, and its first line says so. The ones it finds are marked "found".
-Turn **SELECT** to one and press **SEL** to connect. Its notes and CCs play LOOM-8 as a computer's would, and what
-LOOM-8 sends goes to it too. To let it go, press **SEL** on MIDI DEVICE again, then on DISCONNECT. LOOM-8 has one
+Turn **SELECT** to one and press **SEL** to connect. Its notes and CCs play MiniTraxFM as a computer's would, and what
+MiniTraxFM sends goes to it too. To let it go, press **SEL** on MIDI DEVICE again, then on DISCONNECT. MiniTraxFM has one
 Bluetooth MIDI link at a time, so while a computer or a phone is connected to the FM-1, it can't connect to a
 device.
 
@@ -1414,72 +1159,72 @@ In both lists, **SAVE** connects the device picked, as **SEL** does, and **HOME*
 
 ### MIDI
 
-LOOM-8 speaks MIDI over USB and over Bluetooth, and it works the same on both. What comes in from either one plays,
-and what LOOM-8 sends goes out on both.
+MiniTraxFM speaks MIDI over USB and over Bluetooth, and it works the same on both. What comes in from either one plays,
+and what MiniTraxFM sends goes out on both.
 
-**Bluetooth.** While LOOM-8 runs, the FM-1 shows up as a Bluetooth MIDI device, unless BT MIDI is off. It's named
+**Bluetooth.** While MiniTraxFM runs, the FM-1 shows up as a Bluetooth MIDI device, unless BT MIDI is off. It's named
 "FM-1" and four letters and digits of its own ("FM-1 5132"). The name is the same every time, so you can tell two
 FM-1s apart. On a Mac, open Audio MIDI Setup, choose Window, Show MIDI Studio, click the Bluetooth button, and press
 Connect next to your FM-1. On an iPhone or iPad, connect from the app you play with. Most have a Bluetooth MIDI
-button in their MIDI settings. Bluetooth bunches messages together, so LOOM-8 plays a clock that comes over
+button in their MIDI settings. Bluetooth bunches messages together, so MiniTraxFM plays a clock that comes over
 Bluetooth by the times the sender stamped on it. The tempo is as steady as over USB, but about 75 ms late. To line
-LOOM-8 up with your DAW, set the DAW's clock delay (or MIDI sync offset) to send the clock about 75 ms early. Notes
+MiniTraxFM up with your DAW, set the DAW's clock delay (or MIDI sync offset) to send the clock about 75 ms early. Notes
 and CCs play as they arrive.
 
 **Clock.** Setup's **CLOCK** knob decides who keeps time:
 
-- **receive** is the setting to start with. LOOM-8 follows a MIDI clock coming in, with its Start, Continue and
+- **receive** is the setting to start with. MiniTraxFM follows a MIDI clock coming in, with its Start, Continue and
   Stop, and sends no clock. With no clock coming in, it plays at its own tempo. Half a second after a clock stops,
   it goes back to its own tempo.
-- **send** has LOOM-8 keep time and send its clock, with Start, Continue and Stop, over USB and Bluetooth. It
+- **send** has MiniTraxFM keep time and send its clock, with Start, Continue and Stop, over USB and Bluetooth. It
   ignores any clock or Start and Stop coming in.
-- **internal** has LOOM-8 keep time without following or sending a clock.
+- **internal** has MiniTraxFM keep time without following or sending a clock.
 
 A project from 0.7 or older that sent the clock opens on send, and one that didn't opens on internal.
 
 Each track has its own channel. T1 to T8 are on channels 1 to 8, FX I on 9, FX II on 10, and the master and the
 scenes on 11. Notes on channels 12 to 16 play whichever instrument track is selected. If the conductor or the throws
-track is selected, they play the last instrument track you had. LOOM-8 never sends on 12 to 16. Notes on 9 and 10
+track is selected, they play the last instrument track you had. MiniTraxFM never sends on 12 to 16. Notes on 9 and 10
 do nothing.
 
-**USB keyboards and synths.** LOOM-8 can host a USB MIDI keyboard, controller or synth itself, with no computer
+**USB keyboards and synths.** MiniTraxFM can host a USB MIDI keyboard, controller or synth itself, with no computer
 around. Press **GLO**, open Setup's **SEL** list and set USB PORT to **MIDI host**. Then plug the device in through
 a powered USB hub or a powered USB-C adapter, because the FM-1 gives its USB port no power. It takes one device at
-a time, plugged in directly or behind one hub. The device's notes and CCs play LOOM-8 as a computer's would, by
-channel as above. What LOOM-8 sends goes to it: the tracks' MIDI OUT, the midi engine, and the clock on send. That
-means LOOM-8 can play a hardware synth. The header tells you when a device connects, has no MIDI, or is lost. If
+a time, plugged in directly or behind one hub. The device's notes and CCs play MiniTraxFM as a computer's would, by
+channel as above. What MiniTraxFM sends goes to it: the tracks' MIDI OUT, the midi engine, and the clock on send. That
+means MiniTraxFM can play a hardware synth. The header tells you when a device connects, has no MIDI, or is lost. If
 it's lost, the notes it held are let go. The screen freezes for a moment while a device connects, longer behind a
 hub, but the sound plays on. While USB PORT is MIDI host, there's no computer link, so no USB audio, backup, mirror
 or samples page. Bluetooth MIDI works as before. USB PORT goes back to **computer** at every start, so updating
 always works.
 
-You can also record LOOM-8 on a computer over USB, as an audio input with ten channels at 44.1 kHz. Channels 1
+You can also record MiniTraxFM on a computer over USB, as an audio input with ten channels at 44.1 kHz. Channels 1
 and 2 carry the master, as you hear it. Channels 3 to 10 carry tracks 1 to 8, one track each, so you can record
 every track on its own. Each track's channel has the track at its level, before its pan, with its own filter and
 character. The sends' effects and the master's EQ, color, compressor and pump are only on channels 1 and 2. A
 muted track's channel is silent. To set the level of all ten, use USB audio on Setup's **SEL** list. With
 **follows knob**, MASTER sets it. With **full**, the speaker follows MASTER and the recording stays at full level.
 With **stereo**, the master is recorded at full level as with **full**, and channels 3 to 10 are silent. Use it when
-you only record the master: sending the tracks takes some of LOOM-8's time, which a busy song may need.
+you only record the master: sending the tracks takes some of MiniTraxFM's time, which a busy song may need.
 
-On Windows, a DAW such as Reaper uses one audio driver at a time. With WASAPI or ASIO, LOOM-8 and the device you
+On Windows, a DAW such as Reaper uses one audio driver at a time. With WASAPI or ASIO, MiniTraxFM and the device you
 listen on must run at the same rate. Most headphones and speakers are set to 48 kHz, so set yours to 44.1 kHz too:
 open Windows' Sound settings, choose the output device, and set its format to 44100 Hz. If it has to stay at
 48 kHz, choose DirectSound in your DAW instead, which converts between the two rates. A bridge such as ASIO4ALL also
 converts, but what you hear through it can distort. The recording itself stays clean.
 
 The TRS jack is MIDI in. Everything that comes in over USB works from it too, except SysEx: notes, CCs, Program
-Change, and MIDI clock with start and stop. The FM-1 has no MIDI out jack, so LOOM-8 sends only over USB and
+Change, and MIDI clock with start and stop. The FM-1 has no MIDI out jack, so MiniTraxFM sends only over USB and
 Bluetooth.
 
 Each track's **SEL** list on **EDIT** has MIDI OUT. With it on, the track's notes go out on its own channel, as
 long as Setup's NOTES is on too. MIDI OUT is on in a new project. A project from an older version that had a MIDI
 channel number set opens with MIDI OUT on.
 
-Notes that come in play the track, and record, but LOOM-8 doesn't send them back out. It doesn't send the arp or
-strum they start either, so a DAW that sends them back doesn't cause a loop. The keys you play on LOOM-8 and the
+Notes that come in play the track, and record, but MiniTraxFM doesn't send them back out. It doesn't send the arp or
+strum they start either, so a DAW that sends them back doesn't cause a loop. The keys you play on MiniTraxFM and the
 sequencer's notes do go out. A track's arp, strum or hold follows the last key that played it. So if a note from
-your DAW joins an arp you're holding on LOOM-8, the arp stays off MIDI out until you play a key on LOOM-8 again.
+your DAW joins an arp you're holding on MiniTraxFM, the arp stays off MIDI out until you play a key on MiniTraxFM again.
 
 A CC moves the matching knob or switch, scaled to its range. On channels 12 to 16, it moves the knob or switch of
 the selected instrument track.
@@ -1519,7 +1264,7 @@ after you keep recording on with **REC** and **PLAY**.
 To pick scenes 1 to 32 over MIDI, send Program Change 0 to 31 on channel 11, or notes 36 to 67 (C1 up) on that
 channel. This works like Arrange's white keys, and SCENES SWITCH decides when the change happens.
 
-CC IN, in Setup's **SEL** list (**GLO**), tells LOOM-8 what a controller's knobs send. **absolute** is the setting
+CC IN, in Setup's **SEL** list (**GLO**), tells MiniTraxFM what a controller's knobs send. **absolute** is the setting
 to start with, for pots and faders: a CC's value is where the parameter goes. **endless** is for endless encoders
 that send relative values. On a Launchkey, set its encoders to relative. Each message turns the parameter by its
 amount, in the knob's own steps, so nothing jumps when the FM-1's value and the encoder's disagree. Both of the
@@ -1528,34 +1273,33 @@ CC mutes when you turn up and unmutes when you turn down. Like CC OUT, CC IN bel
 projects.
 
 CC OUT is in Setup's **SEL** list (**GLO**) and is on to start with. With it on, when you turn a mapped knob or
-**SEL** row by hand, LOOM-8 sends its CC on its channel, if the track's MIDI OUT is on. FX and the master always
-send. Apart from mutes, LOOM-8 never sends back what comes in. It never sends locks, automation, presets or a
+**SEL** row by hand, MiniTraxFM sends its CC on its channel, if the track's MIDI OUT is on. FX and the master always
+send. Apart from mutes, MiniTraxFM never sends back what comes in. It never sends locks, automation, presets or a
 kit's 91 / 93 either, because each sound's own send is a separate parameter, and it isn't mapped.
 
-Mutes are the exception. With CC OUT on, whenever a track's mute changes, LOOM-8 sends CC 9 on the track's channel
+Mutes are the exception. With CC OUT on, whenever a track's mute changes, MiniTraxFM sends CC 9 on the track's channel
 (127 muted, 0 playing), if the track's MIDI OUT is on. It sends it however the mute changed: on the Mix page, by a
-solo, by a scene, or by a CC 9 that came in. That way a controller's mute pads follow LOOM-8. Since the value sent
+solo, by a scene, or by a CC 9 that came in. That way a controller's mute pads follow MiniTraxFM. Since the value sent
 back is the one that came in, it changes nothing on the controller.
 
 SCENES OUT comes after CC OUT in Setup's **SEL** list and is off to start with. With it on, when the scene changes
-on LOOM-8 or when you load a project, LOOM-8 sends that scene's Program Change on channel 11. A scene change that
+on MiniTraxFM or when you load a project, MiniTraxFM sends that scene's Program Change on channel 11. A scene change that
 came in over MIDI isn't sent back.
+
 ## Saving
 
-When you turn the FM-1 on, LOOM-8 opens the project you saved or loaded last. It saves by itself three seconds
+When you turn the FM-1 on, MiniTraxFM opens the project you saved or loaded last. It saves by itself three seconds
 after your last change, but only once it is stopped and silent, because writing to the flash would cut the sound.
 Until it saves, the header says "unsaved" and **SAVE** lights. Press **SAVE** to save at once.
 
 To save to another slot, hold **SAVE** and press white key 1 to 3. You can also pick SAVE TO on **HOME**'s **SEL**
-list and turn **ALGORITHM** to the slot. If the slot holds another project, LOOM-8 asks first. NEW PROJECT starts
+list and turn **ALGORITHM** to the slot. If the slot holds another project, MiniTraxFM asks first. NEW PROJECT starts
 in the first empty slot. If all three slots are taken, the new project has none, and it waits for you to use
 SAVE TO before it saves. To save only when you press **SAVE**, press **GLO**, go to Setup and set AUTOSAVE to off
 in its **SEL** list. Every project keeps that choice.
 
-A new project starts with a band picked at random from the factory presets. T1 gets the kit. T2 to T8 get a mono
-bass, a polyphonic synth, a pad, a mono lead, keys, an effect, and a pluck or bell, and every track follows the
-conductor. To pick another band for T2 to T8, use RANDOMIZE PRESETS on **HOME**'s **SEL** list. It asks first,
-and it keeps your patterns, the kit and the mix. A project saves every knob as you left it, not the preset it
+A new project has knit on tracks 1 to 4 and an empty sample kit on tracks 5 to 8, and no track follows the
+conductor. A project saves every knob as you left it, not the preset it
 came from.
 
 **Projects have no names.** Each project is its slot. LOAD PROJECT and SAVE TO show them as Proj 1, Proj 2 and
@@ -1566,18 +1310,18 @@ thirty-two, MIDI notes are switched on, and T1 to T8 go on channels 1 to 8. Proj
 open in older ones.
 
 **Backup.** You can keep the three projects, the user presets and kits, and your samples on a computer, and put
-them back later. Open <https://charlesvestal.github.io/fm1-loom/backup/> in Chrome or Edge with the FM-1 connected
+them back later. Open <https://guinanno1.github.io/fm1-minitrax/backup/> in Chrome or Edge with the FM-1 connected
 by USB. A backup holds the projects as they were last saved, so save anything you want in it first. Putting a
-backup back replaces all three projects and the presets. LOOM-8 asks first on its screen (**SEL** yes, **HOME**
+backup back replaces all three projects and the presets. MiniTraxFM asks first on its screen (**SEL** yes, **HOME**
 no), and only while stopped. Once you say yes, the page sends the samples too. This takes about 20 seconds, and
 the sound stops while they are written. If the backup was made before the page kept samples, your samples stay as
 they are. To do the same from a terminal, run these in the firmware's folder:
 
-- projects and presets: `python3 base/tools/fm1_backup.py backup FILE --magic LM8B` and `restore FILE`
+- projects and presets: `python3 base/tools/fm1_backup.py backup FILE --magic MTXB` and `restore FILE`
 - samples: `python3 tools/loom_samples.py backup FILE` and `restore FILE` (its `restore` also takes the backup
   page's file)
 
-**Mirror.** To see LOOM-8's screen live on a computer, open <https://charlesvestal.github.io/fm1-loom/mirror/> in
+**Mirror.** To see MiniTraxFM's screen live on a computer, open <https://guinanno1.github.io/fm1-minitrax/mirror/> in
 Chrome or Edge with the FM-1 connected by USB. Use it for a video, a lesson, or a bigger view. The page
 shows the buttons, keys and knobs too, and you can play them from there. The music always comes first, so on a
 busy screen the picture may skip a frame, but the sound never does. From a terminal,
@@ -1585,6 +1329,7 @@ busy screen the picture may skip a frame, but the sound never does. From a termi
 
 To keep a track's sound, go to a sound page, hold **SAVE** and press white key 1 to 16. The sound becomes that
 user preset.
+
 
 ## Page by page
 
@@ -1640,12 +1385,12 @@ To put the FM-1 in update mode, hold **REC** while you switch it on. If you inst
 installer, the installer can reach the FM-1 from there, and holding **PLAY** instead opens m-bootloader's recovery
 menu. Without m-bootloader, **REC** starts the chip's own update mode, which only the rescue below can reach.
 
-If LOOM-8 crashes, it shows a red CRASH screen and restarts by itself a few seconds later. If you report the
+If MiniTraxFM crashes, it shows a red CRASH screen and restarts by itself a few seconds later. If you report the
 problem, include the numbers on that screen (a photo is easiest) and what you were doing.
 
-If LOOM-8 crashes twice in a row while starting, it starts in SAFE MODE instead. There's no sound, but USB works,
-so the web installer can reach it. Install LOOM-8 again, or put the stock firmware back from the same page. Press
-**PLAY** to try starting LOOM-8 normally again. If even safe mode fails twice, the FM-1 drops into the chip's own
+If MiniTraxFM crashes twice in a row while starting, it starts in SAFE MODE instead. There's no sound, but USB works,
+so the web installer can reach it. Install MiniTraxFM again, or put the stock firmware back from the same page. Press
+**PLAY** to try starting MiniTraxFM normally again. If even safe mode fails twice, the FM-1 drops into the chip's own
 update mode, and only the rescue below can reach it.
 
 ### Recovering an FM-1 that won't start
@@ -1667,7 +1412,7 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/hugelton/felucca-bsp/mai
    hold **REC** while you switch it back on. The script catches it and checks the chip. It saves a backup of the
    FM-1's memory in the `fm1-rescue` folder in your home folder, and asks before it writes anything.
 4. Type **yes** and press Return. Don't unplug anything until it says it's restarting the FM-1. The FM-1 then
-   starts into its original firmware, and you can install LOOM-8 again from there.
+   starts into its original firmware, and you can install MiniTraxFM again from there.
 
 The script downloads M-VAVE's FM-1 firmware (V16 and V15) and JieLi's flash loader, and checks them against known
 fingerprints. It writes only the firmware area of the memory, never the bootloader or the FM-1's own settings, and
@@ -1678,19 +1423,19 @@ RP2040 board wired to the USB lines.
 
 ## Screen reader
 
-Connect the FM-1 by USB and open https://charlesvestal.github.io/fm1-reader/ in Chrome or Edge. LOOM-8 then
+Connect the FM-1 by USB and open https://charlesvestal.github.io/fm1-reader/ in Chrome or Edge. MiniTraxFM then
 speaks each page, knob value, step, scene and message as it changes, and reads the whole screen when you ask. The
 words it uses are published with this site, so every version reads its own screen correctly.
 
 ## Credits
 
-LOOM-8's way of working owes a great deal to teenage engineering's OP-XY. LOOM-8 is not affiliated with teenage
+MiniTraxFM's way of working owes a great deal to teenage engineering's OP-XY. MiniTraxFM is not affiliated with teenage
 engineering. It is built on fm1-base and felucca-bsp, from Felucca by Leo Kuroshita (Hügelton Instruments), and it
 borrows Polly's menus and X0X's sequencer discipline.
 
 Cane and voile are Mutable Instruments Braids by Émilie Gillet (MIT). Acid is X0X's 303, from Open303 by Robin
 Schmidt (MIT), with jc303's Devilfish ranges by midilab and dm-Rat's RAT drive by Dave Mollen (GPL-3.0). That
-makes LOOM-8 GPL-3.0 as a whole. The plate reverb is after 9W9 by athousanddetails, and its PlayStation modes are
+makes MiniTraxFM GPL-3.0 as a whole. The plate reverb is after 9W9 by athousanddetails, and its PlayStation modes are
 PSXVerb's.
 
 The factory breaks are free loops by u/FCTRYBEATS. The 909 kick, snare and clap are renders of 9W9 by

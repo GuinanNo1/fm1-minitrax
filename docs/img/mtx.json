@@ -1,0 +1,7 @@
+{
+  "mtx-steps.png": ["Steps on track 1, synth 1, in violet: a converted pattern of 32 steps playing, its patch named jericho", "Synth 1's steps, from a converted project"],
+  "mtx-arrange.png": ["Arrange: the eight tracks' playheads in the Circuit's colours, scene 1 playing at 140 BPM", "The arrangement in the Circuit's colours"],
+  "mtx-song.png": ["The Song page: fifteen parts from the Circuit's scene chain, each a scene for a number of bars, looping", "A Circuit scene chain as a song"],
+  "mtx-drums.png": ["Steps on track 5, drum 1, in orange: kicks on the steps, a late hit nudged", "Drum 1, a sample kit"],
+  "mtx-drumkey.png": ["The kit's Engine page: eleven sample keys, the first picked; its knobs sample, pitch, start, reverse", "Each drum key plays a sample"]
+}

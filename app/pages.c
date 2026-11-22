@@ -31,9 +31,16 @@ static const theme_t THEMES[] = {
      RGB(150, 150, 156), RGB(235, 235, 238), RGB(130, 130, 138), RGB(232, 44, 38), RGB(215, 215, 220),
      {RGB(255, 92, 170), RGB(40, 204, 192), RGB(244, 200, 60), RGB(104, 152, 255), RGB(255, 136, 64),
       RGB(110, 216, 110), RGB(178, 136, 255), RGB(214, 176, 136)}, 6, 9},
+    /* MiniTraxFM's own, the default: charcoal, and each track the Circuit Tracks' colour for its part (Synth 1 violet,
+     * Synth 2 pale green, MIDI 1 blue, MIDI 2 pink, Drum 1 orange, Drum 2 yellow, Drum 3 purple, Drum 4 aqua); the
+     * site (tools/make_pages.py TRACKS) wears the same */
+    {"circuit", RGB(22, 22, 24), RGB(36, 36, 40), RGB(60, 60, 66), RGB(62, 62, 68), RGB(100, 100, 106),
+     RGB(156, 156, 162), RGB(238, 238, 240), RGB(130, 130, 138), RGB(232, 44, 38), RGB(215, 215, 220),
+     {RGB(150, 96, 236), RGB(140, 226, 140), RGB(70, 140, 255), RGB(255, 110, 190), RGB(255, 140, 40),
+      RGB(250, 214, 50), RGB(184, 84, 214), RGB(60, 220, 220)}, 6, 9},
 };
 #define NTHEMES (sizeof THEMES / sizeof THEMES[0])
-#define THEME_BW 2
+#define THEME_BW 3                                    /* MiniTraxFM: the default is "circuit" (LOOM-8's was b/w, 2) */
 #define THEME_SET 0x80u                               /* rsv[1]: a theme picked since 0.11 (before: 0 the default, then the
                                                        * tape deck, now b/w; 1 and 2 as they were) */
 #define LARGE_TYPE 0x40u                              /* rsv[1] with THEME_SET: large type (Setup > SEL > LARGE TYPE) */

@@ -32,6 +32,8 @@ strong { font-weight: 600; }
 kbd, strong.key { display: inline-block; font: 600 12px/1 "Barlow Semi Condensed", Arial, sans-serif; letter-spacing: 0.04em;
        padding: 3px 6px 2px; border-radius: 4px; background: var(--key); color: var(--keytext); vertical-align: 1px; }
 code { font: 14px ui-monospace, Menlo, monospace; background: var(--panel); padding: 1px 5px; border-radius: 3px; }
+pre.code { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; overflow-x: auto; }
+pre.code code { background: none; padding: 0; }
 table { border-collapse: collapse; width: 100%; font-size: 15px; margin: 12px 0; }
 .wrap { overflow-x: auto; }
 th, td { text-align: left; vertical-align: top; padding: 7px 10px; border-bottom: 1px solid var(--line); }
@@ -251,6 +253,16 @@ def render(md):
     section = ""
     while i < len(lines):
         ln = lines[i]
+        if ln.startswith("```"):                     # a fenced code block (commands to type), as written
+            flush()
+            j = i + 1
+            code = []
+            while j < len(lines) and not lines[j].startswith("```"):
+                code.append(html.escape(lines[j]))
+                j += 1
+            out.append('<pre class="code"><code>' + "\n".join(code) + "</code></pre>")
+            i = j + 1
+            continue
         if ln.startswith("#"):
             flush()
             n = len(ln) - len(ln.lstrip("#"))

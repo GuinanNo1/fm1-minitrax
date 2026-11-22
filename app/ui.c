@@ -3257,6 +3257,10 @@ static void act_kit(int k)
     if (!is_drum(trk))
         return;
     int dev = 0;
+    if (k < NFKITS && mt_is_drum_trk(trk)) {    /* MiniTraxFM: LOOM-8's factory kits are drum models, not samples */
+        say_no("SAMPLES ONLY", "user kits");
+        return;
+    }
     if (k < NFKITS)
         kit_factory(k, img);
     else if ((dev = kit_load(k - NFKITS, img)) < 0) {

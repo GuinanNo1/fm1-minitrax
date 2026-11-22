@@ -1,0 +1,80 @@
+# SPDX-License-Identifier: MPL-2.0
+# MiniTraxFM's site (https://guinanno1.github.io/fm1-minitrax/), rebuilt on every push to main: the firmware (a test
+# build, by the shared FM-1 builder, attested), the browser emulator (Emscripten), the installer that writes that very
+# build, the quick start and the user guide (docs/), the backup and mirror pages; then published to GitHub Pages. So
+# each change can be tried in the emulator, or installed, minutes after it is pushed.
+name: Site and test build
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: minitrax-pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    uses: zvenson/fm1-build/.github/workflows/build.yml@v1
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    with:
+      sdk: true
+      tests-block: false
+      build: |
+        set -euo pipefail
+        git submodule update --init --recursive
+        sudo apt-get install -y -qq libfribidi0
+        python3 -c "from PIL import features; assert features.check('raqm'), 'Pillow without raqm'"
+        test "$(git -C "$AC79_SDK" rev-parse HEAD)" = d179b4484759423312073f5fbb232501aa491047
+        git clone -q https://github.com/emscripten-core/emsdk.git "$RUNNER_TEMP/emsdk"
+        git -C "$RUNNER_TEMP/emsdk" checkout -q a2b92777574c2feda07994cd4f1079a3dfc151f8   # emsdk 6.0.10
+        "$RUNNER_TEMP/emsdk/emsdk" install 6.0.10
+        "$RUNNER_TEMP/emsdk/emsdk" activate 6.0.10
+        set +u; source "$RUNNER_TEMP/emsdk/emsdk_env.sh"; set -u
+        # the test build (identity FM-1_1300) and its emulator
+        ./build.sh
+        ./build.sh --web
+        sha=$(git rev-parse --short HEAD)
+        when=$(date -u '+%-d %b %Y %H:%M UTC')
+        version="test-$(date -u +%Y%m%d)-$sha"
+        mkdir -p build/release-assets
+        cp app/build/minitrax.fwsc "app/build/minitrax-$version.fwsc"
+        [ -f app/build/minitrax-res.bin ] && cp app/build/minitrax-res.bin "app/build/minitrax-$version-res.bin"
+        python3 tools/make_pages.py "app/build/minitrax-$version.fwsc" "$version" build/site \
+          --build "Test build $sha, $when."
+        cp "app/build/minitrax-$version.fwsc" build/release-assets/
+        tar -C build/site -czf build/release-assets/site.tar.gz .
+      packages: build/release-assets/*
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: packages
+          path: packages
+      - name: The site, out of the build's packages
+        run: |
+          set -euo pipefail
+          mkdir site
+          tar -C site -xzf "$(find packages -name site.tar.gz | head -1)"
+          ls site
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deploy
+        uses: actions/deploy-pages@v4
