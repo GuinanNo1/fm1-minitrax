@@ -375,6 +375,109 @@ static tpat_t *pat_of(int t, int p)             /* track T, pattern P (1-based; 
     return &pats.pat[t - 1][p - 1];
 }
 
+/* MiniTraxFM's import commands: what tools/ct2mtx.py writes for a converted Circuit Tracks project, raw into the
+ * project (no UI, no undo), then "projsave" and "backup" keep it. Tracks, patterns, steps, keys and scenes from 1.
+ *   mtclear                          a new project's settings and empty patterns (projnew without the UI)
+ *   mtpat T PAT LEN SCALE NLEN GRV   pattern PAT of track T: LEN steps (1..64), track scale TS_* (0 = half .. 8 = 16),
+ *                                    note length 0..100 % of a step, groove amount -99..99
+ *   mtstep T PAT S LEN VEL NUDGE N1 [N2 [N3 [N4]]]   a synth step: notes (MIDI), length in quarter steps (1..64) or
+ *                                    pattern.h's longer codes, velocity 1..127, nudge -12..12 ticks
+ *   mtkit T PAT S KEY VEL NUDGE [COMP CVAL]           a drum step: key 1..11 (the sample it plays), its trick (SC_*)
+ *   mtcond T PAT S COND              a step's condition (pattern.h COND_*: 1..99 a chance in %)
+ *   mtscene N P1 P2 .. P8 [MUTE]     scene N used, each track's pattern, the tracks muted (bits)
+ *   mtsong LEN LOOP                  the song's length in slots and whether it loops
+ *   mtslot I SCENE BARS              song slot I plays scene SCENE for BARS bars
+ *   mtstart SCENE                    the scene the project starts on
+ *   mtname T NAME                    track T's sound name ('_' for a space)
+ *   mtgroove TYPE                    the project's groove type (pattern.h GR_*) */
+static void host_die(const char *what, const char *s);
+static int mt_import_cmd(const char *cmd)
+{
+    const char *l = plat_host_line;
+    int v[16] = {0}, n;
+    char w[24] = {0};
+    n = sscanf(l, "%*s %d %d %d %d %d %d %d %d %d %d %d", &v[0], &v[1], &v[2], &v[3], &v[4], &v[5], &v[6], &v[7],
+               &v[8], &v[9], &v[10]);
+    if (!strcmp(cmd, "mtclear")) {
+        project_defaults();
+        for (int t = 0; t < NALLTRK; t++)
+            engine_set_all(t);
+        engine_tempo(proj.tempo_x10);
+    } else if (!strcmp(cmd, "mtpat")) {
+        tpat_t *tp = pat_of(v[0], v[1]);
+        if (!tp || n < 6)
+            host_die("mtpat T PAT LEN SCALE NLEN GROOVE", l);
+        tp->len = (uint8_t)(v[2] < 1 ? 1 : v[2] > NSTEP ? NSTEP : v[2]);
+        tp->scale = (uint8_t)(v[3] < 0 || v[3] >= NTS ? TS_1 : v[3]);
+        tp->nlen = (uint8_t)(v[4] < 0 ? 0 : v[4] > 100 ? 100 : v[4]);
+        tp->groove = (int8_t)(v[5] < -99 ? -99 : v[5] > 99 ? 99 : v[5]);
+    } else if (!strcmp(cmd, "mtstep")) {
+        tpat_t *tp = pat_of(v[0], v[1]);
+        int s = v[2] - 1, k = 0;
+        uint8_t notes[SN];
+        if (!tp || s < 0 || s >= NSTEP || n < 7)
+            host_die("mtstep T PAT S LEN VEL NUDGE N1..", l);
+        for (int i = 6; i < n && k < SN; i++)
+            if (v[i] > 0 && v[i] < 128)
+                notes[k++] = (uint8_t)v[i];
+        if (!k)
+            return 1;
+        step_set_notes(&tp->st[s], notes, k, v[4] < 1 ? 1 : v[4] > 127 ? 127 : v[4]);
+        tp->st[s].len = (uint8_t)(v[3] < 1 ? 1 : v[3] > LEN_MAX ? LEN_MAX : v[3]);
+        tp->st[s].nudge = (int8_t)(v[5] < -12 ? -12 : v[5] > 12 ? 12 : v[5]);
+    } else if (!strcmp(cmd, "mtkit")) {
+        tpat_t *tp = pat_of(v[0], v[1]);
+        int s = v[2] - 1;
+        if (!tp || s < 0 || s >= NSTEP || n < 6 || v[3] < 1 || v[3] > NDRUM)
+            host_die("mtkit T PAT S KEY VEL NUDGE [COMP CVAL]", l);
+        kit_set(&tp->st[s], 1u << (v[3] - 1));
+        tp->st[s].vel = (uint8_t)(v[4] < 1 ? 1 : v[4] > 127 ? 127 : v[4]);
+        tp->st[s].nudge = (int8_t)(v[5] < -12 ? -12 : v[5] > 12 ? 12 : v[5]);
+        if (n >= 8 && v[6] > 0 && v[6] < NSC) {
+            tp->st[s].comp = (uint8_t)v[6];
+            tp->st[s].cval = (uint8_t)(v[7] < 0 ? 0 : v[7] > 9 ? 9 : v[7]);
+        }
+    } else if (!strcmp(cmd, "mtcond")) {
+        tpat_t *tp = pat_of(v[0], v[1]);
+        int s = v[2] - 1;
+        if (!tp || s < 0 || s >= NSTEP || n < 4)
+            host_die("mtcond T PAT S COND", l);
+        tp->st[s].cond = (uint8_t)(v[3] < 0 ? 0 : v[3] > 99 ? 99 : v[3]);
+    } else if (!strcmp(cmd, "mtscene")) {
+        int sc = v[0] - 1;
+        if (sc < 0 || sc >= NSCENE || n < 9)
+            host_die("mtscene N P1..P8 [MUTE]", l);
+        pats.scene[sc].used = 1;
+        for (int t = 0; t < NSEQT; t++)
+            pats.scene[sc].pat[t] = (uint8_t)(t < NTRK && v[1 + t] >= 1 && v[1 + t] <= NPATT ? v[1 + t] - 1 : 0);
+        pats.scene[sc].mute = (uint16_t)(n >= 10 ? v[9] : 0);
+    } else if (!strcmp(cmd, "mtsong")) {
+        pats.song.len = (uint8_t)(v[0] < 0 ? 0 : v[0] > NSONG ? NSONG : v[0]);
+        pats.song.loop = (uint8_t)(v[1] != 0);
+    } else if (!strcmp(cmd, "mtslot")) {
+        int i = v[0] - 1;
+        if (i < 0 || i >= NSONG || n < 3 || v[1] < 1 || v[1] > NSCENE)
+            host_die("mtslot I SCENE BARS", l);
+        pats.song.slot[i].scene = (uint8_t)(v[1] - 1);
+        pats.song.slot[i].rep = (uint8_t)(v[2] < 1 ? 1 : v[2] > SONG_BARS ? SONG_BARS : v[2]);
+    } else if (!strcmp(cmd, "mtstart")) {
+        proj.scene = (uint8_t)(v[0] >= 1 && v[0] <= NSCENE ? v[0] - 1 : 0);
+        engine_scene(proj.scene, SCENE_NOW);
+    } else if (!strcmp(cmd, "mtname")) {
+        int t = 0;
+        if (sscanf(l, "%*s %d %23s", &t, w) != 2 || t < 1 || t > NALLTRK)
+            host_die("mtname T NAME", l);
+        memset(proj.trk[t - 1].name, 0, NAME_LEN);
+        for (int i = 0; w[i] && i < NAME_LEN - 1; i++)
+            proj.trk[t - 1].name[i] = w[i] == '_' ? ' ' : w[i];
+    } else if (!strcmp(cmd, "mtgroove")) {
+        proj.groove = (uint8_t)(v[0] >= 0 && v[0] < NGROOVE ? v[0] : GR_SWING);
+        engine_groove(proj.groove);
+    } else
+        return 0;
+    return 1;
+}
+
 static void steps_print(int t, int p)
 {
     tpat_t *tp = pat_of(t, p);
@@ -1445,6 +1548,7 @@ int app_host_cmd(const char *cmd, const char *a, const char *b, const char *c, c
         proj.trk[t].par[p] = (uint8_t)v;
         engine_set(t, p, v);
         run_ms(1);
+    } else if (!strncmp(cmd, "mt", 2) && mt_import_cmd(cmd)) {   /* MiniTraxFM's import commands (below) */
     } else if (!strcmp(cmd, "uiparam")) {           /* uiparam T P V: as the UI sets it (its rules: MiniTraxFM's tracks) */
         int t = atoi(a) - 1, p = param_of(b), v = atoi(c);
         if (t < 0 || t >= NALLTRK || p < 0 || p >= NTP) {
