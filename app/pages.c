@@ -4179,8 +4179,7 @@ static void smp_columns(int idx, const smp_t *sm, int w)
  * the installer puts them in the bank) is installed from the samples page */
 static const char *smp_missing(int idx)
 {
-    return idx >= smp_factory() ? "empty: fill it on the samples page"
-         : idx >= SMP_BREAK ? "install the breaks: samples page" : "install the sounds: samples page";
+    return idx >= smp_factory() ? "empty: load a converted pack" : "not in MiniTraxFM";   /* (no factory set) */
 }
 static void pic_sample(int32_t x0, int32_t y0, int32_t w, int32_t h, const uint8_t *p)
 {

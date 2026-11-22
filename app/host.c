@@ -3,6 +3,7 @@
  * extras as the simulator has them, its checks and its commands. Included by app.c, inside plat_host.c (its statics:
  * now_ms, enc_acc, store, run_ms ...). Tracks, patterns, steps and scenes count from 1 in a script, as the screen
  * shows them; "expect step" reports the playhead 0-based (eng_step).
+ *   uiparam T P V                as param, through the UI's setter (its rules: MiniTraxFM's track layout)
  *   param T P V                  parameter P (synth.h TP_*: a number or a knob's name, as the knob command's) of track
  *                                T set to V, as a knob would
  *   load N                       every block costs N % (the overload guard's input); -1 = measured
@@ -1443,6 +1444,14 @@ int app_host_cmd(const char *cmd, const char *a, const char *b, const char *c, c
         }
         proj.trk[t].par[p] = (uint8_t)v;
         engine_set(t, p, v);
+        run_ms(1);
+    } else if (!strcmp(cmd, "uiparam")) {           /* uiparam T P V: as the UI sets it (its rules: MiniTraxFM's tracks) */
+        int t = atoi(a) - 1, p = param_of(b), v = atoi(c);
+        if (t < 0 || t >= NALLTRK || p < 0 || p >= NTP) {
+            printf("no param %s %s\n", a, b);
+            exit(2);
+        }
+        set_tp(t, p, v);
         run_ms(1);
     } else if (!strcmp(cmd, "samples")) {           /* samples FILE: the user bank as uploaded */
         static uint8_t img[SMP_BANK_SIZE + 1];

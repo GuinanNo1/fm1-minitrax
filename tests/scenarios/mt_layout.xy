@@ -1,0 +1,19 @@
+# MiniTraxFM's track layout: synth 1, synth 2, midi 1, midi 2 (knit), drum 1-4 (sample kits, one choke group)
+wait 200
+expect par1.0 0
+expect par4.0 0
+expect par5.0 8
+expect par8.0 8
+expect par5.d1.model 10
+expect par8.d11.model 10
+expect par5.d1.mode 3
+# a drum key's model stays a sample; a drum track stays a kit; a synth track takes no kit
+uiparam 5 d1.model 0
+expect par5.d1.model 10
+uiparam 5 0 0
+expect par5.0 8
+uiparam 1 0 8
+expect par1.0 0
+uiparam 1 0 2
+expect par1.0 2
+shot mt_layout.png

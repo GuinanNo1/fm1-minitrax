@@ -183,6 +183,15 @@ static void set_tp(int trk, int p, int v)
         v = clampi(v, 0, 127);
     if (par[p] == v)
         return;
+    /* MiniTraxFM: tracks 1-4 synths, 5-8 sample drums (their keys samples only) */
+    if (p == TP_ENGINE && !is_aux(trk) && !mt_engine_ok(trk, v)) {
+        say_no("NOT HERE", mt_is_drum_trk(trk) ? "drum track" : "synth track");
+        return;
+    }
+    if (mt_is_drum_trk(trk) && tp_is_dkey(p) && (p - TP_DRUM0) % DP_N == DP_MODEL && v % NDM != DM_SAMPLE) {
+        say_no("SAMPLES ONLY", "drum keys");
+        return;
+    }
     undo_sound(trk);
     was_rand = !is_aux(trk) && !is_drum(trk) && par[TP_PLAYER] % NPL == PL_RAND;
     if (p == TP_LTYPE && !is_aux(trk)) {         /* another LFO type: a knob that means the same there keeps its
@@ -215,7 +224,7 @@ static void set_tp(int trk, int p, int v)
             engine_set(trk, TP_DRUMX(key, k), par[TP_DRUMX(key, k)]);
         }
         if (v % NDM >= DM_909CH && v % NDM <= DM_909CRASH && !d909_res_ok())
-            say_no("NO SAMPLES", "reinstall LOOM-8");   /* (the 909 cymbals: the installer writes them beside it) */
+            say_no("NO SAMPLES", "not in MiniTraxFM");   /* (the 909 cymbals: the installer writes them beside it) */
         mark_dirty();
         return;
     }
@@ -304,6 +313,10 @@ static void set_mute(int trk, int on)
 static void load_preset(int trk, const preset_t *pr)
 {
     uint8_t *par = proj.trk[trk].par;
+    if (!mt_engine_ok(trk, pr->par[TP_ENGINE])) {   /* MiniTraxFM: a preset of an engine the track may not take */
+        say_no("NOT HERE", mt_is_drum_trk(trk) ? "drum track" : "synth track");
+        return;
+    }
     undo_sound(trk);
     memcpy(par, pr->par, NTP_SOUND);
     par[TP_O2FINE] = 64;                         /* (the factory presets: no fine tune) */
@@ -388,6 +401,8 @@ static int preset_apply(int trk, int i)
     {
         int u = i - NPRESETS;
         if (!user_presets[u].name[0] && !user_presets[u].par[TP_E1])
+            return 0;
+        if (!mt_engine_ok(trk, user_presets[u].engine))
             return 0;
         undo_sound(trk);
         memcpy(proj.trk[trk].par, user_presets[u].par, NTP_SOUND);
@@ -3213,6 +3228,10 @@ static void kit_factory(int k, uint8_t *img)
 static void kit_apply(int trk, const uint8_t *img, int dev)
 {
     uint8_t *par = proj.trk[trk].par;
+    if (!mt_engine_ok(trk, EG_DRUMLINE)) {       /* MiniTraxFM: a kit only on a drum track */
+        say_no("NOT HERE", "tracks 5-8");
+        return;
+    }
     undo_sound(trk);
     memcpy(par, img + NAME_LEN, NTP_SOUND);
     par[TP_ENGINE] = EG_DRUMLINE;
@@ -4008,7 +4027,11 @@ static void input(void)
         if (lst.open)
             list_change(e);
         else if (page_btn_held(B_EDIT) && !is_aux(sel_trk())) {   /* EDIT held: ALGORITHM picks the engine */
-            ui.pick_engine = (uint8_t)clampi(proj.trk[sel_trk()].par[TP_ENGINE] + (e > 0 ? 1 : -1), 0, NENGINE - 1);
+            int pe = proj.trk[sel_trk()].par[TP_ENGINE], d = e > 0 ? 1 : -1;
+            do                                   /* MiniTraxFM: past the engines this track may not take */
+                pe += d;
+            while (pe >= 0 && pe < NENGINE && !mt_engine_ok(sel_trk(), pe));
+            ui.pick_engine = (uint8_t)clampi(pe >= 0 && pe < NENGINE ? pe : proj.trk[sel_trk()].par[TP_ENGINE], 0, NENGINE - 1);
             if (ui.pick_engine != proj.trk[sel_trk()].par[TP_ENGINE])
                 action_run(A_ENGINE);
         } else

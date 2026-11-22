@@ -243,8 +243,11 @@ void project_device_put(void)
 
 void project_defaults(void)
 {
-    static const uint8_t ORDER[NTRK] = {EG_DRUMLINE, EG_KNIT, EG_RAYON, EG_JACQUARD, EG_KNIT, EG_BELLOWS, EG_CANE,
-                                        EG_VOILE};
+    /* MiniTraxFM: Synth 1, Synth 2, MIDI 1, MIDI 2 as knit voices; Drum 1-4 as sample kits */
+    static const uint8_t ORDER[NTRK] = {EG_KNIT, EG_KNIT, EG_KNIT, EG_KNIT, EG_DRUMLINE, EG_DRUMLINE, EG_DRUMLINE,
+                                        EG_DRUMLINE};
+    static const char *const TNAME[NTRK] = {"synth 1", "synth 2", "midi 1", "midi 2", "drum 1", "drum 2", "drum 3",
+                                            "drum 4"};
     int t, k;
     uint8_t *z = (uint8_t *)&proj, keep = proj.magic == PROJ_MAGIC;   /* (a project before it: the FM-1's settings
                                                                      * carried over; at the first start, none) */
@@ -279,22 +282,25 @@ void project_defaults(void)
                 int j;
                 for (j = 0; j < DP_N; j++)
                     tr->par[TP_DRUM(k, j)] = DL_DEFAULT_KIT[k][j];
+                /* MiniTraxFM: every key a sample (key k + 1 plays user sample k of the bank, until a converted
+                 * project says otherwise), at its own pitch, the whole track one choke group: one hit at a time */
+                tr->par[TP_DRUM(k, DP_MODEL)] = DM_SAMPLE;
+                for (j = 0; j < 4; j++)
+                    tr->par[TP_DRUM(k, DP_K1 + j)] = DM_DEFAULT[DM_SAMPLE][j];
+                tr->par[TP_DRUM(k, DP_K1)] = (uint8_t)(smp_factory() + k);
+                tr->par[TP_DRUM(k, DP_MODE)] = PM_CHOKE1;
             }
             tr->par[TP_A] = 0;                            /* the track-wide drum envelope, neutral (drumline.c): */
             tr->par[TP_D] = 0;                            /* funk 0, attack 0, random 0, length 64 */
             tr->par[TP_S] = 0;
             tr->par[TP_R] = 64;
-            set_name(tr, "kit");
-        } else if (t == 1) {
-            apply_preset(tr, preset_named(EG_KNIT, "sub"));     /* knit's round sub under everything */
         } else {
             apply_preset(tr, preset_first(ORDER[t]));
+            tr->par[TP_VMODE] = VM_POLY;                  /* (six voices a track, as the Circuit's synths) */
         }
-        if (!tr->name[0])
-            set_name(tr, EG_NAME[ORDER[t]]);
+        set_name(tr, TNAME[t]);
         tr->par[TP_ENGINE] = ORDER[t];                    /* (a preset carries its engine; the kit keeps its own) */
-        tr->par[TP_BRAIN] = t ? 1 : 0;                    /* the melodic tracks follow the brain from the start
-                                                           * (the notebook: "several tracks are routed by default") */
+        tr->par[TP_BRAIN] = 0;                            /* MiniTraxFM: a converted song plays its own notes */
         tr->par[TP_CHAN] = 1;                             /* MIDI OUT on: track N's notes on channel N
                                                            * (with Setup's NOTES) */
     }

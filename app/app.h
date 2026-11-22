@@ -127,6 +127,22 @@ void loom_lights(uint32_t buttons, uint32_t keys, int glow, uint32_t dim_keys, i
 /* a debug build (not tools/build.py --release): GLO's last page, Debug, with the load, the voices and CORES */
 #define DEBUG_BUILD (APP_VERSION[0] == 'D' && APP_VERSION[1] == 'E' && APP_VERSION[2] == 'V' && \
                      (!APP_VERSION[3] || APP_VERSION[3] == 'T'))   /* DEV, or the load test's DEVTEST */
+/* MiniTraxFM's fixed track layout, after the Circuit Tracks: tracks 1-4 (MT_SYN0..) are polyphonic synths (Synth 1,
+ * Synth 2, MIDI 1, MIDI 2 of a converted pack), tracks 5-8 (MT_DRM0..) sample drum tracks (Drum 1-4: a kit whose keys
+ * all play samples, one choke group, so a track sounds one hit at a time). mt_engine_ok: the engines a track may take */
+#define MT_SYN0 0
+#define MT_NSYN 4
+#define MT_DRM0 4
+#define MT_NDRM 4
+static inline int mt_is_drum_trk(int t) { return t >= MT_DRM0 && t < MT_DRM0 + MT_NDRM; }
+static inline int mt_engine_ok(int t, int e)
+{
+    if (t < 0 || t >= MT_DRM0 + MT_NDRM)
+        return 1;                                /* (the aux tracks: their own rules) */
+    if (mt_is_drum_trk(t))
+        return e == EG_DRUMLINE;
+    return e == EG_KNIT || e == EG_RAYON || e == EG_JACQUARD || e == EG_BELLOWS || e == EG_CANE || e == EG_VOILE;
+}
 #define PROJ_MAGIC 0x3158544Du          /* "MTX1" (LOOM-8 was "LOM8") (was "XXY1": XY-1's projects start fresh) */
 #define PROJ_FORMAT 21u                 /* (10, 0.5-beta's, to 12 load too: project.c migrate_old; older ones do not)
                                          * 21: the arp's dotted speeds, the delay's triplet times (project.c OLD_ARP);
