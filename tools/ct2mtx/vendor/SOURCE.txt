@@ -1,0 +1,2 @@
+f064cee7fd9ba755ed768b152a7734ef7e9b114a
+ncs_parser.py from https://github.com/namirsab/circuit-tracks-tools (MIT), commit above, unmodified.

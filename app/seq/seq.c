@@ -44,6 +44,7 @@
 #define SEQ_NEAR 8u
 #endif
 #define SEQ_DUE (SEQ_NEAR << 8)
+#define MT_BAR_EARLY (64u << 8)            /* MiniTraxFM: a step this close before a song part's bar line waits for it */
 #define TAG_KEY 0x100u                /* live keys: TAG_KEY | note */
 #define TAG_ARP 0x200u
 #define TAG_PLAYER 0x300u             /* maestro / hold: TAG_PLAYER | note */
@@ -1411,7 +1412,7 @@ static int song_plays(const seq_t *s) { return s->song_on && s->P->song.len > 0;
 static uint32_t bar_end(seq_t *s, int start, const seq_sink_t *o)
 {
     uint8_t next[NSEQT];
-    uint32_t changed = 0;
+    uint32_t changed = 0, part_new = 0;
     int t, scene_now = -1;
     for (t = 0; t < NSEQT; t++)
         next[t] = s->ppat[t];
@@ -1432,6 +1433,7 @@ static uint32_t bar_end(seq_t *s, int start, const seq_sink_t *o)
                     k = 0;
             }
             s->song_rep = sg->slot[k].rep ? sg->slot[k].rep : 1;
+            part_new = 1;
         }
         s->song_pos = (uint8_t)k;
         scene_now = sg->slot[k].scene < NSCENE ? sg->slot[k].scene : 0;
@@ -1453,6 +1455,21 @@ static uint32_t bar_end(seq_t *s, int start, const seq_sink_t *o)
     for (t = 0; t < NSEQT; t++)
         if (next[t] != s->ppat[t]) {
             s->ppat[t] = next[t];
+            changed |= 1u << t;
+        }
+    /* MiniTraxFM: the song's next part starts every instrument track from its first step, as a Circuit scene starts
+     * its chains together (a track whose pattern did not change would otherwise go on from where it was) */
+    if (part_new)
+        for (t = 0; t < NTRK; t++) {
+            int from, to;
+            const seq_trk_t *tr = &s->t[t];
+            if (changed >> t & 1u)
+                continue;
+            pat_loop(tpat(s, t), &from, &to);
+            /* (a track that has just played its loop's first step, a hair before this bar line in the same tick, is
+             * there already: restarting it would play that step twice) */
+            if (!start && tr->started && tr->pos == from && tr->age < (32u << 8))
+                continue;
             changed |= 1u << t;
         }
     return changed;
@@ -3593,6 +3610,12 @@ void seq_advance(seq_t *s, uint32_t k, const seq_sink_t *o)
     SQ_T(qf);
     for (guard = 0; guard < 8; guard++) {
         int fired = 0;
+        /* MiniTraxFM: the song's next part starts at the coming bar line (song_plays, the last bar of its slot, the
+         * sixteenth about to be a bar line): an instrument track's step due just before it waits for it, so it is
+         * not played from the old pattern a hair before the part restarts the track and plays its first step (steps run up
+         * to ~23 samples ahead of the sixteenth: SEQ_NEAR's grouping across the render's stretches) */
+        int part_due = song_plays(s) && s->step_tick && !(s->step_tick & 15u) && !s->bar_fresh && s->song_rep <= 1 &&
+                       s->six_to_next < MT_BAR_EARLY;
         if (s->playing && s->six_to_next < SEQ_DUE) {   /* the sixteenth first: its bar may restart tracks */
             SQ_T(q0);
             six_tick(s, o);
@@ -3616,7 +3639,7 @@ void seq_advance(seq_t *s, uint32_t k, const seq_sink_t *o)
             }
             if (!s->playing)
                 continue;
-            if (tr->to_next < SEQ_DUE) {
+            if (tr->to_next < SEQ_DUE && !(part_due && t < NTRK)) {
                 SQ_T(q1);
                 fire_step(s, t, o);
                 SQ_ADD(1, q1);

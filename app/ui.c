@@ -617,7 +617,14 @@ static void play_press(void)
         rec_off();
         return;
     }
-    if (ui.page == P_SONG) {
+    /* MiniTraxFM: a project with a song (a converted Circuit scene chain) plays it from any page, as the Circuit plays
+     * its chain; the Song page as before (from the slot picked); a project without one plays its scene */
+    if (ui.page != P_SONG && pats.song.len > 1 && (!twice || now < PLAY_TWICE_MS)) {   /* (a first press at boot) */
+        seq.song_on = 1;
+        seq.song_pos = 0;
+        seq.song_rep = 0;
+        engine_scene(pats.song.slot[0].scene % NSCENE, 0);
+    } else if (ui.page == P_SONG) {
         if (!pats.song.len) {
             say_no("NO SONG", "press a white key");
             return;

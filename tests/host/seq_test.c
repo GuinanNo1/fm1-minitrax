@@ -1064,7 +1064,7 @@ static void t_song(void)
 }
 
 /* a song slot counts bars of 16 sixteenths, whatever track 1's length: a 64-step pattern on track 1 plays two
- * bars of it under repeats 2, then the next slot (its pattern from the top); a track whose pattern stays goes on */
+ * bars of it under repeats 2, then the next slot (its pattern from the top); every track starts again there */
 static void t_song_bars(void)
 {
     cur = "song-bars";
@@ -1091,8 +1091,10 @@ static void t_song_bars(void)
     run(49 * L16);
     CHECK(count(E_ON, 0) == 3 && on_n(0)->a == 60 && on_n(1)->a == 72 && on_n(2)->a == 60);
     CHECK(near(on_n(1)->t, 32 * L16 + 16, 1) && near(on_n(2)->t, 48 * L16 + 24, 1));
-    CHECK(count(E_ON, 1) == 3 && nth(E_ON, 1, 2)->a == 42 && near(nth(E_ON, 1, 2)->t, 32 * L16 + 16, 1));
-    /* (track 2, the same pattern in both scenes, runs on through the slots: its bar 3 in slot 2) */
+    CHECK(count(E_ON, 1) == 4 && nth(E_ON, 1, 2)->a == 40 && near(nth(E_ON, 1, 2)->t, 32 * L16 + 16, 1) &&
+          nth(E_ON, 1, 3)->a == 40 && near(nth(E_ON, 1, 3)->t, 48 * L16 + 24, 1));
+    /* (MiniTraxFM: track 2, the same pattern in both scenes, starts again with the song's next part, as a Circuit
+     * scene starts its chains together: its step 1 in slot 2, and again when slot 1 comes round; LOOM-8 ran it on) */
     printf("ok %s\n", cur);
 }
 
