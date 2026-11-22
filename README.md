@@ -1,3 +1,27 @@
+# MiniTraxFM for the M-VAVE FM-1
+
+MiniTraxFM plays Novation Circuit Tracks packs on the M-VAVE FM-1. It is a fork of
+[LOOM-8](https://github.com/charlesvestal/fm1-loom) by Charles Vestal, cut down to the Circuit Tracks' layout:
+
+- **tracks 1-4**: polyphonic synths (up to 6 voices each, 16 in all), standing in for Synth 1, Synth 2, MIDI 1 and MIDI 2
+- **tracks 5-8**: sample drum tracks, standing in for Drum 1-4: each a kit of up to 11 samples, one hit at a time,
+  4 sample voices in all
+
+A converted pack's song plays from PLAY, and each part starts every track from step 1, as a Circuit scene does.
+LOOM-8's factory sounds and breaks are not used: the sample bank holds only the pack's samples.
+
+**Converting a pack**: `tools/ct2mtx/` turns a `.circuittrackspack` into a MiniTraxFM backup with up to three
+projects and the samples they play. See [tools/ct2mtx/README.md](tools/ct2mtx/README.md).
+
+Status: early. It builds and runs in fm1-base's host simulator, where converted songs play note for note
+(`tools/ct2mtx/verify.py`). It has not yet been built for or run on an FM-1. The package identity `FM-1_13` is a
+placeholder until one is agreed with the other firmwares. Some of LOOM-8's test scenarios still assume its own
+layout (a kit on track 1) and fail; they are next to be rewritten.
+
+What follows is LOOM-8's own README, which still describes most of the firmware.
+
+---
+
 # LOOM-8 for the M-VAVE FM-1
 
 LOOM-8 turns the M-VAVE FM-1 into a pocket groovebox: eight instrument tracks, each in its own colour, on

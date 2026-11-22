@@ -3,6 +3,7 @@
  * extras as the simulator has them, its checks and its commands. Included by app.c, inside plat_host.c (its statics:
  * now_ms, enc_acc, store, run_ms ...). Tracks, patterns, steps and scenes count from 1 in a script, as the screen
  * shows them; "expect step" reports the playhead 0-based (eng_step).
+ *   projload SLOT                project SLOT (1..3) loaded, as LOAD on Setup
  *   uiparam T P V                as param, through the UI's setter (its rules: MiniTraxFM's track layout)
  *   param T P V                  parameter P (synth.h TP_*: a number or a knob's name, as the knob command's) of track
  *                                T set to V, as a knob would
@@ -1549,6 +1550,10 @@ int app_host_cmd(const char *cmd, const char *a, const char *b, const char *c, c
         engine_set(t, p, v);
         run_ms(1);
     } else if (!strncmp(cmd, "mt", 2) && mt_import_cmd(cmd)) {   /* MiniTraxFM's import commands (below) */
+    } else if (!strcmp(cmd, "projload")) {          /* projload SLOT: as LOAD on Setup (slot 1..3) */
+        ui.ask_arg = (uint8_t)(atoi(a) - 1);
+        do_load_proj();
+        run_ms(1);
     } else if (!strcmp(cmd, "uiparam")) {           /* uiparam T P V: as the UI sets it (its rules: MiniTraxFM's tracks) */
         int t = atoi(a) - 1, p = param_of(b), v = atoi(c);
         if (t < 0 || t >= NALLTRK || p < 0 || p >= NTP) {
