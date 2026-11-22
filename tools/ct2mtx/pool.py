@@ -15,8 +15,15 @@ _WORDS = [("openhat", ("oh", "open", "ohh", "o-hat", "ohat")), ("hat", ("hh", "h
           ("cymbal", ("crash", "ride", "cym", "splash", "china"))]
 
 
+# names of things no one-shot drum can stand in for: a loop, a phrase, a voice
+NOT_DRUMS = ("loop", "vocal", "vox", "voice", "choir", "arp", "melody", "chord", "stab", "hook", "phrase", "pad",
+             "bass", "break", "riff", "fx", "sweep")
+
+
 def category(name):
     n = " " + name.lower().replace("_", " ").replace("-", " ") + " "
+    if any(w in n for w in NOT_DRUMS):
+        return None
     for cat, words in _WORDS:
         for w in words:
             if (" " + w + " ") in n or (len(w) > 3 and w in n) or n.strip().startswith(w + " ") or \

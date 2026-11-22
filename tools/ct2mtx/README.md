@@ -21,7 +21,7 @@ replaced or left out, every patch and what was approximated), and with `--wav` a
 | Drum 1-4 | tracks 5-8: sample kits. Key 1 is the track's sample, keys 2-11 the other samples its steps pick (sample flips). One choke group, so a hit cuts the one before |
 | samples | only the samples the converted projects play. 22050 Hz, 4-bit ADPCM: 214 KB, about 19 s in all, at most 32 samples. `--max-len` (default 1.5 s) leaves longer ones out |
 | a sample left out | replaced by a synthesised alternate of the same kind (kick, snare, clap, hat, open hat, tom, rim, cowbell, shaker, cymbal) guessed from its name (`pool.py`), unless `--no-alt` |
-| patterns (32 steps, 6 notes) | MiniTraxFM patterns (64 steps, 4 notes: the loudest four are kept). Gate, micro-step delay, velocity and probability carry over. A drum roll becomes the multiply trick |
+| patterns (32 steps, 6 notes) | MiniTraxFM patterns (64 steps, 4 notes: of a bigger chord the lowest and highest are kept, then the loudest). Gate, micro-step delay, velocity and probability carry over. A drum roll becomes the multiply trick |
 | a chain | one pattern when its patterns fit 64 steps; a longer one is laid out in 4-bar blocks |
 | scenes and the scene chain | scenes (up to 32) and the song (up to 64 parts). PLAY plays the song from any page; every part starts all tracks from step 1, as a Circuit scene does |
 | tempo, swing, mixer levels, pans, reverb and delay sends | tempo, the swing groove, track levels and pans, the FX II (reverb) and FX I (delay) sends |

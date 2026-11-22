@@ -34,7 +34,7 @@ def song_parts(ncs):
     return [[(c.start, c.end) for c in ncs.pattern_chains]]
 
 
-def expected(pr, bars, whole_song=False):
+def expected(pr, bars, whole_song=False, silent=frozenset()):
     """[(track, ms, note or None)] the Circuit project plays in `bars` bars: its first part looping, or (whole_song)
     its parts in turn, each for its longest chain rounded up to whole bars (as ct2mtx lays the song out), the song
     looping; and the count of chance steps"""
@@ -72,12 +72,13 @@ def expected(pr, bars, whole_song=False):
                         continue
                     d = min(n.delay for n in notes)
                     ms = (base + d / 6.0 * k16) * ms16
-                    midi = sorted(set(max(1, min(127, n.note_number - 12 + root)) for n in notes))
-                    for nn in midi[:4]:
+                    for nn in C.keep4(notes, root):
                         out.append((t, ms, nn))
                 else:
                     if not s.active:
                         continue
+                    if (pr.default_drums[t - 4] if s.drum_choice == 0xFF else s.drum_choice) in silent:
+                        continue                         # (a sample left out of the bank: silent by design)
                     if s.probability < 7:
                         chance += 1
                     mask = s.micro_hits & 0x3F or 1
@@ -155,8 +156,9 @@ def main(argv=None):
                 cur = None
             elif cur is not None:
                 cur.append(line)
-        names = [ln.split(" ", 2)[2] for ln in script if ln.startswith("projsave")]
-        chosen = [p for n in names for p in projects if p.name.replace(" ", "_")[:11] == n][:len(parts)]
+        chosen = C.choose_projects(projects, a.projects)
+        _, slot_to = C.plan_bank(pack, chosen, 1.5, True, C.Report())
+        silent = frozenset(k for k, v in slot_to.items() if v is None)
         bad = 0
         for i, (pr, part) in enumerate(zip(chosen, parts)):
             tempo = max(40, min(240, pr.ncs.timing.tempo))
@@ -176,7 +178,7 @@ def main(argv=None):
             got_all = played(log, 0)
             t0 = min((ms for _, ms, _ in got_all), default=0)
             got = [(t, ms - t0, n) for t, ms, n in got_all]
-            exp, chance = expected(pr, a.bars, a.song)
+            exp, chance = expected(pr, a.bars, a.song, silent)
             rows = compare(exp, got, a.tol, span)
             print(f"{pr.name}: {'the song' if a.song else 'first scene'}, {a.bars} bars at {tempo} BPM ({chance} chance steps played as sure)")
             print("  track     expected played matched missing extra")
