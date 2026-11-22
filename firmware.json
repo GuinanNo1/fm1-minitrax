@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "id": "loom",
-  "name": "LOOM-8",
+  "id": "minitrax",
+  "name": "MiniTraxFM",
   "author": "Charles Vestal",
   "license": "GPL-3.0-only",
   "tagline": "a pocket groovebox",

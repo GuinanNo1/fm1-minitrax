@@ -9,7 +9,7 @@
 #include "dsp/synth.h"
 #include "dsp/fx.h"
 
-#define APP_NAME "LOOM-8"
+#define APP_NAME "MiniTraxFM"
 #define APP_BLOCK 256u                  /* frames a render (5.8 ms): fm1-base's USB audio input takes 256-frame halves
                                          * at most (felucca-bsp usb.c); LOOM-8's own platform had 512-frame halves,
                                          * each rendered as two 256-frame calls, which is what the simulator always did */
@@ -67,7 +67,7 @@ enum { OBJ_PANEL, OBJ_PRESETS, OBJ_PROJ0, OBJ_BLE = OBJ_PROJ0 + NPROJ * PROJ_NOB
     OBJ_PROJ0 + 0, OBJ_PROJ0 + 1, OBJ_PROJ0 + 2, OBJ_PROJ0 + 3, OBJ_PROJ0 + 4, OBJ_PROJ0 + 5, OBJ_PROJ0 + 6, \
     OBJ_PROJ0 + 7, OBJ_PROJ0 + 8, OBJ_PROJ0 + 9, OBJ_PROJ0 + 10, OBJ_PROJ0 + 11, OBJ_PROJ0 + 12, OBJ_PROJ0 + 13, \
     OBJ_PROJ0 + 14, OBJ_PROJ0 + 15, OBJ_PROJ0 + 16, OBJ_PROJ0 + 17, OBJ_PROJ0 + 18, OBJ_PROJ0 + 19, OBJ_PROJ0 + 20}
-#define APP_BACKUP_MAGIC 0x42384D4Cu     /* "LM8B" */
+#define APP_BACKUP_MAGIC 0x4258544Du     /* "MTXB" */
 #define APP_BACKUP_VERSION 1u
 #define APP_BACKUP_WHAT "replaces projects, presets"
 #define APP_BACKUP_BUF loom_io_buf      /* project.c's object buffer, lent to a restore (fm1-base's own: 3.8 KB of the pool) */
@@ -127,7 +127,7 @@ void loom_lights(uint32_t buttons, uint32_t keys, int glow, uint32_t dim_keys, i
 /* a debug build (not tools/build.py --release): GLO's last page, Debug, with the load, the voices and CORES */
 #define DEBUG_BUILD (APP_VERSION[0] == 'D' && APP_VERSION[1] == 'E' && APP_VERSION[2] == 'V' && \
                      (!APP_VERSION[3] || APP_VERSION[3] == 'T'))   /* DEV, or the load test's DEVTEST */
-#define PROJ_MAGIC 0x384D4F4Cu          /* "LOM8" (was "XXY1": XY-1's projects start fresh) */
+#define PROJ_MAGIC 0x3158544Du          /* "MTX1" (LOOM-8 was "LOM8") (was "XXY1": XY-1's projects start fresh) */
 #define PROJ_FORMAT 21u                 /* (10, 0.5-beta's, to 12 load too: project.c migrate_old; older ones do not)
                                          * 21: the arp's dotted speeds, the delay's triplet times (project.c OLD_ARP);
                                          * 20: an FX track's PING WIDTH (TP_FX_WIDTH, its TP_X1; older: 127, full);
