@@ -13,11 +13,6 @@ on:
 permissions:
   contents: read
 
-# Installing on the FM-1 held back until the controls and screens are finalised: no installer, no firmware download,
-# no firmware in the build's published packages; the emulator and the guides as usual. "false" to open it again.
-env:
-  INSTALL_HOLD: "true"
-
 concurrency:
   group: minitrax-pages
   cancel-in-progress: true
@@ -34,6 +29,10 @@ jobs:
       tests-block: false
       build: |
         set -euo pipefail
+        # Installing on the FM-1 held back until the controls and screens are finalised: no installer, no firmware
+        # download, no firmware in the build's published packages; the emulator and the guides as usual.
+        # "false" to open it again. (Here, in the script: a reusable workflow's steps see none of this file's env.)
+        INSTALL_HOLD=true
         git submodule update --init --recursive
         sudo apt-get install -y -qq libfribidi0
         python3 -c "from PIL import features; assert features.check('raqm'), 'Pillow without raqm'"
