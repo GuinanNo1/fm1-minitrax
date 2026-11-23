@@ -13,6 +13,11 @@ on:
 permissions:
   contents: read
 
+# Installing on the FM-1 held back until the controls and screens are finalised: no installer, no firmware download,
+# no firmware in the build's published packages; the emulator and the guides as usual. "false" to open it again.
+env:
+  INSTALL_HOLD: "true"
+
 concurrency:
   group: minitrax-pages
   cancel-in-progress: true
@@ -45,11 +50,17 @@ jobs:
         when=$(date -u '+%-d %b %Y %H:%M UTC')
         version="test-$(date -u +%Y%m%d)-$sha"
         mkdir -p build/release-assets
-        cp app/build/minitrax.fwsc "app/build/minitrax-$version.fwsc"
-        [ -f app/build/minitrax-res.bin ] && cp app/build/minitrax-res.bin "app/build/minitrax-$version-res.bin"
-        python3 tools/make_pages.py "app/build/minitrax-$version.fwsc" "$version" build/site \
-          --build "Test build $sha, $when."
-        cp "app/build/minitrax-$version.fwsc" build/release-assets/
+        if [ "$INSTALL_HOLD" = "true" ]; then
+          # (on hold: the site without the installer or the firmware, and the firmware not among the packages)
+          python3 tools/make_pages.py --no-firmware --hold-install "$version" build/site \
+            --build "Test build $sha, $when."
+        else
+          cp app/build/minitrax.fwsc "app/build/minitrax-$version.fwsc"
+          [ -f app/build/minitrax-res.bin ] && cp app/build/minitrax-res.bin "app/build/minitrax-$version-res.bin"
+          python3 tools/make_pages.py "app/build/minitrax-$version.fwsc" "$version" build/site \
+            --build "Test build $sha, $when."
+          cp "app/build/minitrax-$version.fwsc" build/release-assets/
+        fi
         tar -C build/site -czf build/release-assets/site.tar.gz .
       packages: build/release-assets/*
 

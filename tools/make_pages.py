@@ -19,6 +19,10 @@
 
   tools/make_pages.py PACKAGE.fwsc VERSION OUT_DIR [--build "test build, 22 Nov 2026, abc1234"]
   tools/make_pages.py --no-firmware VERSION OUT_DIR      (the pages without the installer and the download)
+  tools/make_pages.py --no-firmware --hold-install VERSION OUT_DIR
+                                (installing held back: install/ says so and points at the emulator, the quick start
+                                and the guide say so too, no firmware is published; .github/workflows/pages.yml
+                                INSTALL_HOLD)
 
 The look follows Novation Components (the Circuit Tracks' editor): charcoal, and the Circuit Tracks' eight track
 colours, which the firmware's default theme wears too (app/pages.c "circuit"). The layout follows GIO-1's site. Every
@@ -181,15 +185,13 @@ ul.feat li { margin: 0 0 .5rem; }
 <p class="lede">MiniTraxFM turns the FM-1 into a pocket player for your Novation Circuit Tracks projects. Convert a
 pack on your computer, load it onto the FM-1 and press PLAY: four polyphonic synth tracks and four sample drum tracks
 play its patterns, scenes and songs, in the Circuit's own colours.</p>
-<div class="status"><strong>__BUILD__</strong> MiniTraxFM is in testing: every change is built and published here,
-for the emulator and the installer alike. You install and remove it like any other fm1-base firmware, and the
-installer can always put M-VAVE's own firmware back. Install at your own risk.</div>
+<div class="status"><strong>__BUILD__</strong> __STATUS__</div>
 <div class="shots">__SHOTS__</div>
 
 <h2>Get going</h2>
 <nav class="ways" aria-label="Get MiniTraxFM">
   <a href="emu/" style="--c:#9660ec"><strong>Try it in the browser</strong><span>The firmware itself, running here with sound. Load a converted pack and play it, no FM-1 needed.</span></a>
-  <a href="install/" style="--c:#8ce28c"><strong>Install</strong><span>Connect the FM-1 by USB and install from Chrome or Edge. Nothing to install on your computer.</span></a>
+  __INSTALL_CARD__
   <a href="quickstart/" style="--c:#468cff"><strong>Quick start</strong><span>From a Circuit Tracks pack to a song playing on the FM-1, in five steps.</span></a>
   <a href="manual/" style="--c:#ff6ebe"><strong>User guide</strong><span>The tracks, the steps, the sounds, the mixer, scenes and songs, saving.</span></a>
   <a href="__REPO__/tree/main/tools/ct2mtx" style="--c:#ff8c28"><strong>Convert a pack</strong><span>ct2mtx turns a .circuittrackspack into a MiniTraxFM file: three projects and the samples they play.</span></a>
@@ -230,6 +232,17 @@ Felucca by Leo Kuroshita (Hügelton Instruments). The converter reads projects w
 """
 
 
+INSTALL_CARD = ('<a href="install/" style="--c:#8ce28c"><strong>Install</strong><span>Connect the FM-1 by USB and install '
+                'from Chrome or Edge. Nothing to install on your computer.</span></a>')
+INSTALL_CARD_HOLD = ('<a href="install/" style="--c:#8ce28c"><strong>Install: on hold</strong><span>Not for the FM-1 yet, '
+                     'while the controls and screens are finalised. Try it in the browser meanwhile.</span></a>')
+STATUS = ("MiniTraxFM is in testing: every change is built and published here, for the emulator and the installer alike. "
+          "You install and remove it like any other fm1-base firmware, and the installer can always put M-VAVE's own "
+          "firmware back. Install at your own risk.")
+STATUS_HOLD = ("MiniTraxFM is in testing, in the browser only: every change is built and published to the emulator here. "
+               "Installing on the FM-1 is on hold until the controls and screens are finalised.")
+
+
 def shots_html():
     """the landing's screenshots: docs/img/mtx-*.png (tools/make_shots.sh), each with its alt text in docs/img/mtx.json"""
     meta = SRC / "docs" / "img" / "mtx.json"
@@ -250,9 +263,46 @@ def md_page(md, out_html, title):
     out_html.write_text(t, encoding="utf-8")
 
 
+HOLD_PAGE = """<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MiniTraxFM: installing is on hold</title>
+<meta name="robots" content="noindex">
+<style>
+body { margin: 0; padding-inline: 16px; padding-block: 0 48px; font: 400 17px/1.6 "Barlow", "Helvetica Neue", Arial, sans-serif; }
+main { max-width: 46rem; margin: 0 auto; }
+h1 { font: 700 2.4rem/1.1 "Barlow Semi Condensed", "Barlow", sans-serif; margin: 8px 0 14px; }
+.hold { background: var(--card); border: 1px solid var(--rule); border-left: 4px solid #fad632; border-radius: 12px; padding: 14px 18px; }
+.go { display: inline-block; margin-top: 18px; background: #9660ec; color: #fff !important; text-decoration: none; font-weight: 700;
+      padding: 10px 18px; border-radius: 10px; }
+</style>
+</head>
+<body>
+<main>
+<h1>Installing is on hold</h1>
+<div class="hold"><p><strong>MiniTraxFM is not ready for the FM-1 yet.</strong> Parts of its controls and screens are
+still being settled, so the installer and the firmware download are switched off for now.</p>
+<p>Until then, MiniTraxFM can be tried in full in the browser: the emulator runs the same code the FM-1 would, and it
+loads converted Circuit Tracks packs.</p></div>
+<a class="go" href="../emu/">Try it in the emulator</a>
+</main>
+</body>
+</html>
+"""
+HOLD_NOTE = ('<p class="hold-note" style="border:1px solid var(--line, #34343a);border-left:4px solid #fad632;'
+             'border-radius:10px;padding:10px 14px;margin:0 0 18px"><strong>Installing on the FM-1 is on hold</strong> '
+             'while the controls and screens are finalised. Try MiniTraxFM in the <a href="../emu/">emulator</a> '
+             'meanwhile: the steps here that load a pack work there too.</p>')
+
+
 def main(argv):
     nofw = "--no-firmware" in argv
-    argv = [a for a in argv if a != "--no-firmware"]
+    hold = "--hold-install" in argv
+    argv = [a for a in argv if a not in ("--no-firmware", "--hold-install")]
+    if hold and not nofw:
+        sys.exit("make_pages: --hold-install publishes no firmware: give --no-firmware with it")
     build = None
     if "--build" in argv:
         i = argv.index("--build")
@@ -270,7 +320,7 @@ def main(argv):
     if out.exists():
         shutil.rmtree(out)
     out.mkdir(parents=True)
-    sections = [s for s in SECTIONS if not (nofw and s[0] == "install/")]
+    sections = [s for s in SECTIONS if not (nofw and not hold and s[0] == "install/")]
     pages = [("index.html", ""), ("quickstart/index.html", "quickstart/"), ("manual/index.html", "manual/"),
              ("backup/index.html", "backup/"), ("mirror/index.html", "mirror/"), ("emu/index.html", "emu/")]
     conf = base_site.read_conf(SRC / "app" / "fm1.toml")
@@ -329,6 +379,10 @@ def main(argv):
         download = (f'<a href="firmware/{name}" style="--c:#3cdcdc"><strong>Download</strong><span>{html.escape(name)}, for '
                     f'the command-line installer: <code>python3 base/tools/fm1_install.py {html.escape(name)}</code></span></a>')
         pages.insert(1, ("install/index.html", "install/"))
+    if hold:
+        (out / "install").mkdir()
+        (out / "install" / "index.html").write_text(HOLD_PAGE, encoding="utf-8")
+        pages.insert(1, ("install/index.html", "install/"))
     for d in ("backup", "mirror"):
         (out / d).mkdir(exist_ok=True)
     # the backup page: the projects and presets, and the sample bank in the file (a converted pack's .mtx loads here)
@@ -349,6 +403,12 @@ def main(argv):
     md_page(SRC / "docs" / "QUICKSTART.md", out / "quickstart" / "index.html", f"{NAME} quick start")
     (out / "manual").mkdir()
     md_page(SRC / "docs" / "MANUAL.md", out / "manual" / "index.html", f"{NAME} user guide")
+    if hold:                             # (the guides' install steps: on hold, said at the top of each)
+        for d in ("quickstart", "manual"):
+            f = out / d / "index.html"
+            t = f.read_text(encoding="utf-8")
+            t = re.sub(r"(</h1>)", lambda m: m.group(1) + HOLD_NOTE, t, count=1)
+            f.write_text(t, encoding="utf-8")
     # the landing
     rows = "".join(f'<tr><td>{c}</td><td><span class="sw" style="background:{TRACKS[i]}"></span>track {i + 1}, '
                    f'{TRACK_NAMES[i]}</td><td>{w}</td></tr>'
@@ -364,7 +424,9 @@ def main(argv):
     bar = "".join(f'<span style="background:{c}"></span>' for c in TRACKS)
     land = (LANDING.replace("__BAR__", bar).replace("__GRID__", grid).replace("__ROWS__", rows)
             .replace("__SHOTS__", shots_html()).replace("__DOWNLOAD__", download)
-            .replace("__BUILD__", html.escape((build.rstrip(".") + ".") if build else f"Version {version}.")).replace("__REPO__", REPO))
+            .replace("__BUILD__", html.escape((build.rstrip(".") + ".") if build else f"Version {version}."))
+            .replace("__INSTALL_CARD__", INSTALL_CARD_HOLD if hold else INSTALL_CARD)
+            .replace("__STATUS__", STATUS_HOLD if hold else STATUS).replace("__REPO__", REPO))
     (out / "index.html").write_text(land, encoding="utf-8")
     # the emulator and the screen reader's words
     emu = SRC / "app" / "build" / "emu"
