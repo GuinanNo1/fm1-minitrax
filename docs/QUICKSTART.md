@@ -41,14 +41,29 @@ Press **PLAY**. The first project plays its song: each part of the Circuit's sce
 | **HOME** | the arrangement: each track's pattern and playhead. Black keys 1 to 8 mute the tracks |
 | **KNOB 1** on **HOME** | tempo |
 | **ALGORITHM** | picks the track: 1 to 4 synths, 5 to 8 drums |
-| **SEQ** | the selected track's steps |
+| **SEQ** | the selected track's pattern: a piano roll for a synth, a step grid for a drum. **SELECT** turns to page 2, Pattern settings |
 | **EDIT**, then **PRESETS** | another sound for the track |
 | **HOME**, **SEL**, LOAD PROJECT | the other two projects |
 
 The tracks wear the Circuit's colours: synth 1 violet, synth 2 green, midi 1 blue, midi 2 pink, then the drums
 orange, yellow, purple and aqua.
 
-## 5. Save and back up
+## 5. Edit a pattern (SEQ)
+
+The screen shows the bar's 16 steps across, one for each white key; the squares 1 to 4 at the top right are the bars.
+
+| | |
+| --- | --- |
+| tap a **white key** | a step on or off (a synth writes the notes you last played with **SEQ** held) |
+| hold a **white key** | **KNOB 1** velocity, **KNOB 2** gate, **KNOB 3** chance, **KNOB 4** note; **OCT−/+** micro step |
+| hold a step, press a later one | the first step's gate reaches to it |
+| hold **SEQ**, play the keys | a keyboard: sets the notes a tap writes |
+| **PRESETS** | moves the piano roll up or down |
+| black keys (drum track) | pick the drum sound the steps write |
+| **KNOB 1** to **4** | pattern, length, rate, groove |
+| **SELECT** → Pattern | **KNOB 1** start, **KNOB 2** end, **KNOB 3** record quantise, **KNOB 4** default gate |
+
+## 6. Save and back up
 
 MiniTraxFM saves by itself a few seconds after you stop. To keep your changes on the computer, use **Backup** on
 the [backup page](https://guinanno1.github.io/fm1-minitrax/backup/).
