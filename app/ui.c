@@ -1301,6 +1301,7 @@ static void track_select(int t)
         return;
     engine_keys_off(sel_trk());
     ui.nchord = 0;
+    ui.roll_ofs = 0;
     ui.held = 0;
     ui.trickpg = 0;
     ui.lockpg = 0;
@@ -1323,10 +1324,9 @@ static void track_select(int t)
  * page the tracks that play (T1-T8, the conductor, the throws, the weave) */
 static void track_step(int e)
 {
-    static const uint8_t MIXT[10] = {0, 1, 2, 3, 4, 5, 6, 7, AUX_FX1, AUX_FX2};
-    static const uint8_t SEQT[11] = {0, 1, 2, 3, 4, 5, 6, 7, AUX_BRAIN, AUX_PUNCH, AUX_WEAVE};
-    const uint8_t *L = ui.page == P_MIX ? MIXT : SEQT;
-    int N = ui.page == P_MIX ? 10 : 11, cur = sel_trk(), i, d = e > 0 ? 1 : -1, n = e > 0 ? e : -e;
+    static const uint8_t SEQT[8] = {0, 1, 2, 3, 4, 5, 6, 7};   /* MiniTraxFM: the eight tracks, nothing else */
+    const uint8_t *L = SEQT;
+    int N = 8, cur = sel_trk(), i, d = e > 0 ? 1 : -1, n = e > 0 ? e : -e;
     for (i = 0; i < N && L[i] != cur; i++)
         ;
     if (i == N) {                                /* (not in the list: from where it would sit) */
@@ -2194,14 +2194,19 @@ static void bar_knob(int k, int32_t e)
     if (!is_seqt(trk))
         return;
     undo_keep();
-    if (k == 0)
+    if (k == 0 || k == 1) {                      /* MiniTraxFM: the loop's start and end (Pattern settings) */
+        int from, to, d = e > 0 ? 1 : -1;
+        pat_loop(tp, &from, &to);
+        if (k == 0)
+            from = clampi(from + d, 0, to - 1);
+        else
+            to = clampi(to + d, from + 1, tp->len);
+        tp->lstart = (uint8_t)from;
+        tp->lend = (uint8_t)(to >= tp->len ? 0 : to);
+    } else if (k == 2)
         tp->quant = (uint8_t)clampi(tp->quant + e, 0, 100);
-    else if (k == 1)
-        tp->nlen = (uint8_t)clampi(tp->nlen + e, 0, 100);
-    else if (k == 2)
-        tp->groove = (int8_t)clampi(tp->groove + e, -99, 99);
     else
-        tp->shape = (uint8_t)clampi(tp->shape + e, 0, 100);
+        tp->nlen = (uint8_t)clampi(tp->nlen + e, 0, 100);
     mark_dirty();
 }
 static void glfo_knob(int k, int32_t e)          /* the shared LFO's knobs (synth.h: the conductor's LFO slots) */
@@ -2439,7 +2444,9 @@ static void presets(int32_t e)
             say("SOUND", DL_SOUND_NAME[ui.dsound]);
         } else if ((ui.btn >> B_SEQ & 1u) && !is_aux(trk))   /* SEQ held (the keys a keyboard): the track's sound */
             preset_step(trk, d);
-        else if (is_seqt(trk))
+        else if (ui.page == P_STEPS && trk < NTRK) {   /* MiniTraxFM: the piano roll up or down */
+            ui.roll_ofs = (int8_t)clampi(ui.roll_ofs + d * 2, -60, 60);
+        } else if (is_seqt(trk))
             pattern_pick(trk, cur_pat(trk) + d);
         break;
     case P_MIX:

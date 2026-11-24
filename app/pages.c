@@ -157,7 +157,7 @@ static const char *const BTN_LABEL[NB] = {"FX", "SEL", "ENV", "LFO", "EDIT", "GL
                                           "PLAY", "REC", "OCT-", "OCT+"};
 
 /* the tracks: 1-8, then the aux tracks (the tag's short names, the pages' long ones) */
-static const char *const TRACK_NAME[NALLTRK] = {"T1", "T2", "T3", "T4", "T5", "T6", "T7", "T8", "COND", "THROW",
+static const char *const TRACK_NAME[NALLTRK] = {"SYN1", "SYN2", "MIDI1", "MIDI2", "DRUM1", "DRUM2", "DRUM3", "DRUM4", "COND", "THROW",
                                                 "FX I", "FX II", "WEAVE"};
 static const char *const NOTE_NAME[12] = {"C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"};
 /* the step components (SC_*: the OP-XY's 14, on the white keys with HOME and a step held), their letter on
@@ -222,6 +222,7 @@ static struct {
     uint8_t dirty;                                   /* the project changed since it was saved */
     uint8_t bar;                                     /* Steps: the bar shown 0..3 */
     uint8_t dsound;                                  /* a drum track: the key shown 0..10 */
+    int8_t roll_ofs;                                 /* SEQ's piano roll: moved up (+) or down by PRESETS, semitones */
     int8_t oct;                                      /* the keys' octave -4..4 */
     uint8_t rem[SN], nrem;                           /* the remembered notes (the last keys held together) */
     uint8_t rem_fx;                                  /* PUNCH: the remembered effect + 1 */
@@ -615,6 +616,10 @@ static int is_acid(int t) { return t < NTRK && proj.trk[t].par[TP_ENGINE] == EG_
 /* a page's name: a drum track's Play page is its Key page, its Filter env page the kit's envelope */
 static const char *page_name_of(int p, int trk)
 {
+    if (p == P_STEPS && trk < NTRK)                  /* MiniTraxFM: the Circuit Tracks' names */
+        return is_drum(trk) ? "Steps" : "Notes";
+    if (p == P_BAR && trk < NTRK)
+        return "Pattern";
     if (is_drum(trk) && p == P_PLAY)
         return "Key";
     if (is_drum(trk) && p == P_ENV2)
@@ -1494,7 +1499,7 @@ static void step_knobs(knob_t *k)
         kn(&k[0], "VEL", st->vel, 127);
     t[0] = 0;
     step_len_text(st->len, t, tp->nlen);
-    kv(&k[1], "LENGTH", t, st->len, step_len_code(tp->len * 4));
+    kv(&k[1], "GATE", t, st->len, step_len_code(tp->len * 4));
     t[0] = 0;
     {
         hit_t h;
@@ -1519,7 +1524,7 @@ static void step_knobs(knob_t *k)
             note_name(n, t);
         else
             s_cat(t, "-");
-        kv(&k[3], "PITCH", t, n, 127);
+        kv(&k[3], "NOTE", t, n, 127);
     }
 }
 /* HOME + a step held: the strip shows the step's components and their values */
@@ -1693,19 +1698,22 @@ static void page_knobs(knob_t *k)
         } else
             kn(&k[0], "PATTERN", cur_pat(trk) + 1, NPATT);
         kn(&k[1], "LENGTH", tp->len, NSTEP);
-        kname(&k[2], "SCALE", TS_NAME, tp->scale, NTS);
+        kname(&k[2], "RATE", TS_NAME, tp->scale, NTS);
         kn(&k[3], "GROOVE", tp->groove, 0);
         break;
-    case P_BAR:
+    case P_BAR: {                                 /* MiniTraxFM: Pattern settings (the Circuit Tracks' start and end) */
+        int from, to;
         if (!is_seqt(trk))
             break;
-        kn(&k[0], "QUANT", tp->quant, 100);
+        pat_loop(tp, &from, &to);
+        kn(&k[0], "START", from + 1, tp->len);
+        kn(&k[1], "END", to, tp->len);
+        kn(&k[2], "QUANT", tp->quant, 100);
         e = num_s(tp->nlen, t);
         s_cat(e, "%");
-        kv(&k[1], "NOTE", t, tp->nlen, 100);
-        kn(&k[2], "GROOVE", tp->groove, 0);
-        kn(&k[3], "SHAPE", tp->shape, 100);
+        kv(&k[3], "GATE", t, tp->nlen, 100);
         break;
+    }
     case P_ENGINE:
         if (is_aux(trk))
             aux_engine_knobs(k, trk);
@@ -1979,16 +1987,12 @@ static void track_crumb(char *t)
 {
     int trk = sel_trk();
     char *e = s_cat(t, TRACK_NAME[trk]);
-    if (!is_aux(trk)) {
-        e = s_cat(e, " ");
-        e = s_cat(e, EG_NAME[proj.trk[trk].par[TP_ENGINE] % NENGINE]);
-    }
-    if (is_seqt(trk)) {
+    if (is_seqt(trk)) {                          /* (MiniTraxFM: no engine's name: a track is a synth or a drum) */
         e = num_s((uint32_t)cur_pat(trk) + 1u, s_cat(e, ">P"));
         if (playing() && seq.pcue[trk] < NPATT && seq.pcue[trk] != cur_pat(trk))   /* cued: it comes at the bar */
             e = num_s((uint32_t)seq.pcue[trk] + 1u, s_cat(e, ">next P"));
     }
-    num_s((uint32_t)cur_scene() + 1u, s_cat(e, ">S"));
+    num_s((uint32_t)cur_scene() + 1u, s_cat(e, ">scene "));
 }
 static void page_tag(char *t)
 {
@@ -2215,11 +2219,11 @@ static void page_footer(char *t)
         else if (ui.len_key && (ui.held >> (ui.len_key - 1) & 1u))
             s_cat(t, "let go: length|KNOBS both steps");
         else if (ui.held && is_drum(trk))
-            s_cat(t, "BLACK sounds|ARP tricks|EDIT ENV FX LFO lock");
+            s_cat(t, "BLACK sounds|OCT micro step");
         else if (ui.held & (ui.held - 1u))
-            s_cat(t, "WHITE more steps|ARP tricks|EDIT ENV FX LFO lock|SEQ notes");
+            s_cat(t, "WHITE more steps|OCT micro step|SEQ chord");
         else if (ui.held)
-            s_cat(t, "WHITE length|ARP tricks|EDIT ENV FX LFO lock|SEQ notes");
+            s_cat(t, "WHITE gate to it|OCT micro step|SEQ chord");
         else if (ui.rec_armed)
             s_cat(t, "KEYS write|OCT skip, back|REC+OCT clear|REC done");
         else if (seq.rec || seq.rec_wait)
@@ -2229,9 +2233,9 @@ static void page_footer(char *t)
         else if (ui.btn >> B_SEQ & 1u)
             s_cat(t, is_drum(trk) ? "KEYS pick a sound" : "KEYS the notes a step writes|OCT pattern octave");
         else if (is_drum(trk))
-            s_cat(t, ui.page == P_BAR ? "WHITE steps|BLACK sound|SEQ held: bars" : "WHITE steps|BLACK sound|SEQ held: pick a sound");
+            s_cat(t, ui.page == P_BAR ? "BLACK rate|SEQ held: bars" : "WHITE steps|BLACK sound");
         else
-            s_cat(t, ui.page == P_BAR ? "WHITE steps|BLACK scale|SEQ held: bars" : "WHITE steps|SEQ held: play notes");
+            s_cat(t, ui.page == P_BAR ? "BLACK rate|SEQ held: bars" : "WHITE steps|PRESET scroll|SEQ held: keyboard");
         break;
     case P_MIX:
         s_cat(t, "BLACK mute|hold: solo|WHITE play");
@@ -3612,6 +3616,258 @@ static void steps_head(int trk, char *nm, char *t)
             e = s_cat(e, " ");
         e = note_name(ui.rem[i], e);
     }
+}
+/* MiniTraxFM's SEQ (the Circuit Tracks' Note view): a synth track's pattern as a piano roll, a drum track's as a
+ * grid of its keys; the bar's 16 steps across (the white keys), the bars' squares at the top right. */
+#define PR_X 26                     /* the grid's left (the notes' names in the gutter before it) */
+#define PR_CW 13                    /* a step's width: 16 of them 208 px */
+#define PR_Y 17                     /* the grid's top, under the head */
+static uint32_t roll_sig(int trk)   /* what the picture shows */
+{
+    const tpat_t *tp = tpat(trk);
+    uint32_t h = hash_u(hash_u(2166136261u, 0x5Eu), (uint32_t)trk | (uint32_t)cur_pat(trk) << 4 | (uint32_t)ui.bar << 8 |
+                                                   (uint32_t)ui.held << 10 | (uint32_t)ui.dsound << 26);
+    h = hash_u(h, (uint32_t)eng_step[trk] | (uint32_t)playing() << 8 | (uint32_t)ui.rec_armed << 9 |
+                      (uint32_t)ui.cursor << 16 | (uint32_t)(uint8_t)ui.roll_ofs << 24);
+    h = hash_s(hash_pat(h, tp), proj.trk[trk].name);
+    for (int i = 0; i < 4; i++)
+        h = hash_u(h, ui.rem[i]);
+    return h;
+}
+static void roll_head(int trk, const tpat_t *tp, int32_t xr)   /* the sound's name, the bars (normal type) */
+{
+    char nm[NAME_LEN + 2], t[40];
+    int nb = (tp->len + 15) / 16, pb = eng_step[trk] / 16;
+    if (band != &BANDS[0])
+        return;
+    steps_head(trk, nm, t);
+    text_fit(4, 1, &FONT_XS, nm[0] ? nm : t, xr - 8, K_TEXT);
+    for (int b = 0; b < NBAR; b++) {
+        int32_t x = 176 + b * 14;
+        uint16_t c = b < nb ? K_DIM : K_LINE, f = b == pb && playing() ? K_NOW : c;
+        cv_round(x - 1, 0, 12, 15, 4, f);
+        if (b == ui.bar)
+            cv_frame(x - 1, 0, 12, 15, 4, K_SEL, f);
+        num_s((uint32_t)b + 1u, t);
+        text_c(x + 5, cap_y(0, 15, &FONT_XS), &FONT_XS, t, b == ui.bar || f == K_NOW ? K_BG : K_TEXT);
+    }
+}
+/* the grid's columns: the steps past the pattern's end dark, every fourth step's line, the playhead's column, the
+ * held steps' and the record cursor's marks */
+static void roll_cols(int trk, const tpat_t *tp, int32_t y0, int32_t h)
+{
+    int ph = eng_step[trk];
+    for (int i = 0; i < 16; i++) {
+        int s = ui.bar * 16 + i;
+        int32_t x = PR_X + i * PR_CW;
+        if (s >= tp->len)
+            cv_rect(x, y0, PR_CW, h, K_BG);
+        else if (playing() && s == ph)
+            cv_rect(x, y0, PR_CW, h, K_NOW_T);
+        if (!(i & 3))
+            cv_rect(x, y0, 1, h, i ? K_LINE : K_DIM);
+        if (ui.held >> i & 1u)                       /* a held step's column: its edges */
+            cv_rect(x, y0, 1, h, K_SEL), cv_rect(x + PR_CW - 1, y0, 1, h, K_SEL);
+        if (ui.rec_armed && s == ui.cursor)
+            cv_rect(x, y0, 1, h, K_REC), cv_rect(x + PR_CW - 1, y0, 1, h, K_REC);
+    }
+}
+/* a note's bar: from its step (nudged) as long as it plays, velocity its brightness; clipped to the grid */
+static void roll_bar(int trk, const tpat_t *tp, int s, const step_t *st, int32_t y, int32_t rh)
+{
+    int q = st->len ? step_len_q(st->len) : (tp->nlen * 4 + 99) / 100, held, now;
+    int32_t x0 = PR_X + (s - ui.bar * 16) * PR_CW + st->nudge * PR_CW / PPS, x1, gx1 = PR_X + 16 * PR_CW;
+    uint16_t c;
+    if (q < 1)
+        q = 1;
+    x1 = x0 + q * PR_CW / 4;
+    if (x1 - x0 < 3)
+        x1 = x0 + 3;
+    if (x1 <= PR_X || x0 >= gx1)
+        return;
+    held = s >= ui.bar * 16 && s < ui.bar * 16 + 16 && (ui.held >> (s - ui.bar * 16) & 1u);
+    now = playing() && s == eng_step[trk];
+    c = ink_mix(trk_ink(trk), 7u + (uint32_t)st->vel * 9u / 127u);
+    if (now)
+        c = col_mix(trk_ink(trk), K_TEXT, 6);
+    if (x0 < PR_X)
+        x0 = PR_X;
+    if (x1 > gx1)
+        x1 = gx1;
+    if (held)
+        cv_frame(x0, y, x1 - x0, rh, rh > 5 ? 2 : 1, K_SEL, c);
+    else
+        cv_round(x0 + 1, y, x1 - x0 - 1, rh, rh > 5 ? 2 : 1, c);   /* (3 px rows: the bar the row's height) */
+    if (st->cond && rh > 4)                          /* a chance step: a gap at its start */
+        cv_rect(x0 + 2, y + rh / 2, 2, 1, K_BG);
+}
+static void draw_roll(int trk)
+{
+    const tpat_t *tp = tpat(trk);
+    int lo = 127, hi = 0, rows, rh, top, span;
+    int32_t gh = MAIN_H - PR_Y;
+    char t[8];
+    if (!begin_main(roll_sig(trk)))
+        return;
+    roll_head(trk, tp, 172);
+    for (int s = 0; s < tp->len; s++)                /* the pattern's notes' range (all its bars: the roll stays put) */
+        for (int i = 0; i < SN; i++)
+            if (tp->st[s].note[i]) {
+                lo = tp->st[s].note[i] < lo ? tp->st[s].note[i] : lo;
+                hi = tp->st[s].note[i] > hi ? tp->st[s].note[i] : hi;
+            }
+    for (int i = 0; i < ui.nrem && i < SN; i++)      /* and the notes a tap writes */
+        if (ui.rem[i]) {
+            lo = ui.rem[i] < lo ? ui.rem[i] : lo;
+            hi = ui.rem[i] > hi ? ui.rem[i] : hi;
+        }
+    if (hi < lo)
+        lo = hi = 60 + 12 * ui.oct;
+    span = hi - lo + 3;                              /* a row free above and below */
+    if (span < 13)
+        span = 13;
+    rh = (int)(gh / span);
+    rh = rh < 3 ? 3 : rh > 9 ? 9 : rh;               /* (3 px rows: a bass's two octaves and more still fit) */
+    rows = (int)(gh / rh);
+    top = hi + (rows - (hi - lo + 1) + 1) / 2 + ui.roll_ofs;   /* the top row's note: the range centred, PRESETS moves it */
+    if (top > 127)
+        top = 127;
+    if (top - rows + 1 < 0)
+        top = rows - 1;
+    for (int r = 0; r < rows; r++) {                 /* the rows: a keyboard's, the black keys darker, C's named */
+        int n = top - r, pc = n % 12, blk = pc == 1 || pc == 3 || pc == 6 || pc == 8 || pc == 10;
+        int32_t y = PR_Y + r * rh;
+        cv_rect(PR_X, y, 16 * PR_CW, rh, blk ? K_BG : K_PANEL);
+        cv_rect(PR_X - 4, y, 3, rh, blk ? K_LINE : K_FAINT);
+        if (pc == 0) {
+            cv_rect(PR_X - 4, y + rh - 1, 16 * PR_CW + 4, 1, K_DIM);
+            note_name(n, t);
+            text_r(PR_X - 6, y + rh - 12, &FONT_XS, t, K_TEXT);
+        }
+    }
+    roll_cols(trk, tp, PR_Y, rows * rh);
+    for (int s = 0; s < tp->len; s++) {              /* the notes: this bar's, and earlier ones still sounding in it */
+        const step_t *st = &tp->st[s];
+        if (step_empty(st) || s >= ui.bar * 16 + 16)
+            continue;
+        if (s < ui.bar * 16 && s + step_cover(st) <= ui.bar * 16)
+            continue;
+        for (int i = 0; i < SN; i++) {
+            int n = st->note[i];
+            if (n && n <= top && n > top - rows)
+                roll_bar(trk, tp, s, st, PR_Y + (top - n) * rh, rh > 3 ? rh - 1 : rh);
+            else if (n && s >= ui.bar * 16) {        /* off the roll: a mark at its edge */
+                int32_t x = PR_X + (s - ui.bar * 16) * PR_CW + PR_CW / 2 - 2;
+                cv_rect(x, n > top ? PR_Y : PR_Y + rows * rh - 2, 4, 2, trk_ink(trk));
+            }
+        }
+    }
+    cv_blit(0, MAIN_Y);
+}
+/* SEQ's second page, Pattern settings: the pattern's four bars, a row each, its steps with notes lit, the loop it
+ * plays (START .. END) bright and the rest dim, the playhead */
+static void draw_patset(int trk)
+{
+    const tpat_t *tp = tpat(trk);
+    int from, to, ph = eng_step[trk];
+    char t[40], *e;
+    if (!begin_main(roll_sig(trk) ^ ((uint32_t)tp->lstart << 3 | (uint32_t)tp->lend << 13 | (uint32_t)tp->scale << 21)))
+        return;
+    pat_loop(tp, &from, &to);
+    e = num_s((uint32_t)tp->len, s_cat(t, "Length "));
+    e = num_s((uint32_t)from + 1u, s_cat(e, "   plays "));
+    num_s((uint32_t)to, s_cat(e, " to "));
+    cv_text(4, 1, &FONT_XS, t, K_TEXT);
+    for (int s = 0; s < NSTEP; s++) {
+        int32_t x = 8 + (s % 16) * 14, y = MY(22) + (s / 16) * MY(24);
+        int in = s < tp->len, loop = s >= from && s < to, on = in && !step_empty(&tp->st[s]);
+        uint16_t c = !in ? K_BG : on ? (loop ? trk_ink(trk) : ink_mix(trk_ink(trk), 6)) : loop ? K_PANEL2 : K_PANEL;
+        if (playing() && s == ph && in)
+            c = col_mix(trk_ink(trk), K_TEXT, 8);
+        cv_round(x, y, 12, MY(20), 3, c);
+        if (!in)
+            cv_frame(x, y, 12, MY(20), 3, K_LINE, K_BG);
+        if (s == from || s == to - 1)                /* the loop's ends marked under them */
+            cv_rect(x, y + MY(20) + 1, 12, 2, K_TEXT);
+    }
+    cv_blit(0, MAIN_Y);
+}
+/* a drum key's name: its sample's (the pack's), else the kit's default */
+static const char *dkey_name(int trk, int k)
+{
+    const uint8_t *par = proj.trk[trk].par;
+    if (par[TP_DRUM(k, DP_MODEL)] == DM_SAMPLE && smp_get(par[TP_DRUM(k, DP_K1)]))
+        return smp_name(par[TP_DRUM(k, DP_K1)]);
+    return DL_SOUND_NAME[k % DL_NSOUND];
+}
+/* a drum track: a row for each key the pattern plays (and the key shown), its hits by velocity */
+static void draw_dgrid(int trk)
+{
+    const tpat_t *tp = tpat(trk);
+    uint32_t used = 1u << (ui.dsound % NDRUM);
+    int rows, rh, r;
+    int32_t gh = MAIN_H - PR_Y;
+    if (!begin_main(roll_sig(trk)))
+        return;
+    roll_head(trk, tp, 172);
+    for (int s = 0; s < tp->len; s++)
+        used |= kit_mask(&tp->st[s]);
+    rows = __builtin_popcount(used);
+    rh = (int)(gh / (rows < 3 ? 3 : rows));
+    if (rh > 26)
+        rh = 26;
+    r = 0;
+    for (int k = 0; k < NDRUM; k++) {
+        int32_t y = PR_Y + r * rh;
+        int shown = k == ui.dsound % NDRUM;
+        char nm[12];
+        if (!(used >> k & 1u))
+            continue;
+        cv_rect(PR_X, y, 16 * PR_CW, rh - 1, shown ? K_PANEL2 : K_PANEL);
+        s_cat(nm, dkey_name(trk, k));
+        nm[4] = 0;
+        cv_text(4, y + (rh - 1) / 2 - 7, &FONT_XS, nm, shown ? K_TEXT : K_DIM);
+        r++;
+    }
+    roll_cols(trk, tp, PR_Y, r * rh);
+    r = 0;
+    for (int k = 0; k < NDRUM; k++) {
+        int32_t y = PR_Y + r * rh;
+        if (!(used >> k & 1u))
+            continue;
+        for (int i = 0; i < 16; i++) {
+            int s = ui.bar * 16 + i;
+            const step_t *st = &tp->st[s];
+            int32_t x = PR_X + i * PR_CW + st->nudge * PR_CW / PPS;
+            uint16_t c;
+            if (s >= tp->len || !kit_has(st, k + 1))
+                continue;
+            c = playing() && s == eng_step[trk] ? col_mix(trk_ink(trk), K_TEXT, 6)
+                                                 : ink_mix(trk_ink(trk), 7u + (uint32_t)st->vel * 9u / 127u);
+            if (ui.held >> i & 1u)
+                cv_frame(x + 1, y + 1, PR_CW - 2, rh - 3, 2, K_SEL, c);
+            else
+                cv_round(x + 1, y + 1, PR_CW - 2, rh - 3, 2, c);
+        }
+        r++;
+    }
+    {   /* room under the rows: the shown key's velocities, a bar each (the Circuit Tracks' Velocity view) */
+        int32_t y0 = PR_Y + r * rh + 4, vh = MAIN_H - y0 - 2;
+        if (vh >= 20) {
+            cv_text(4, y0 + vh - 13, &FONT_XS, "vel", K_DIM);
+            cv_rect(PR_X, y0 + vh, 16 * PR_CW, 1, K_LINE);
+            for (int i = 0; i < 16; i++) {
+                int s = ui.bar * 16 + i, v;
+                const step_t *st = &tp->st[s];
+                if (s >= tp->len || !kit_has(st, ui.dsound % NDRUM + 1))
+                    continue;
+                v = step_vel(pats.lane, trk, cur_pat(trk), s, ui.dsound % NDRUM);
+                v = (v ? v : st->vel) * vh / 127;
+                cv_rect(PR_X + i * PR_CW + 3, y0 + vh - v, PR_CW - 6, v, ink_mix(trk_ink(trk), 10));
+            }
+        }
+    }
+    cv_blit(0, MAIN_Y);
 }
 static void draw_steps_as(void);
 static void draw_steps(void)                         /* large type: the cells in today's faces (eight across) */
@@ -6046,7 +6302,12 @@ static void draw_page(void)
     case P_ARRANGE: draw_arrange(); break;
     case P_SONG: draw_song(); break;
     case P_STEPS:
-        if (ui.chordmode && is_seqt(trk) && !is_drum(trk))
+        if (trk < NTRK && !(ui.chordmode && !is_drum(trk))) {   /* MiniTraxFM: the piano roll, the drum grid */
+            if (is_drum(trk))
+                draw_dgrid(trk);
+            else
+                draw_roll(trk);
+        } else if (ui.chordmode && is_seqt(trk) && !is_drum(trk))
             if (ui.chord_pool)
                 draw_step_pool();
             else
@@ -6054,7 +6315,12 @@ static void draw_page(void)
         else
             draw_steps();
         break;
-    case P_BAR: draw_bar(); break;
+    case P_BAR:
+        if (trk < NTRK)
+            draw_patset(trk);
+        else
+            draw_bar();
+        break;
     case P_CHARACTER: draw_character(); break;
     case P_SENDS: draw_sends(); break;
     case P_FX1: draw_fxtrack(AUX_FX1); break;
