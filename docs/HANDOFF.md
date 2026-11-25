@@ -36,7 +36,9 @@ Two more rules from the user:
 
 The firmware build (CI log, run 45457568730) reports **image 580,764 B against the app slot 0x8DFBC = 581,564 B, so only about 800 B is free**. RAM has 2,776 B free. The Mixer and FX pages won't fit until code is removed.
 
-The user's instruction: **remove the hidden features to reclaim as much space as possible.** They don't need to stay recoverable, though a git tag before removal costs nothing (e.g. `git tag pre-strip c94a7f9`).
+The user's instruction: **remove the hidden features to reclaim as much space as possible.** They don't need to stay recoverable, but the code from before the removal gets a tag.
+
+**First, before removing anything: the user is tagging the pre-removal commit on GitHub.** The tag is `pre-strip` on `5c6ba29` (main as of 25 Nov 2026). Pushing the tag from Claude's session was refused (HTTP 403 from the git proxy; branch pushes work), so the user will create it on GitHub: Releases → Draft a new release → new tag `pre-strip`, target `main` (`5c6ba29`) → publish the release (a saved draft doesn't create the tag). Check it's there before the first removal commit: `git ls-remote --tags origin pre-strip`.
 
 Candidates, roughly biggest first. Check each before removing it.
 
